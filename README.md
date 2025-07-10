@@ -62,7 +62,7 @@ Quick example:
 <!-- Last read books -->
 <div data-hardcover-widget data-api-url="http://localhost:8080" data-username="your-username" data-book-type="last-read"></div>
 
-<script src="http://localhost:8080/widget.js"></script>
+<script src="http://localhost:8080/static/widget.js"></script>
 ```
 
 Or use the API directly:
@@ -89,7 +89,7 @@ Or use the API directly:
 - `GET /api/books/currently-reading/:username` - Returns currently reading books for a user
 - `GET /api/books/last-read/:username` - Returns last read books for a user  
 - `GET /embed.html` - Embeddable HTML component
-- `GET /widget.js` - JavaScript widget for embedding
+- `GET /static/widget.js` - JavaScript widget for embedding (with caching headers)
 - `GET :9090/metrics` - Prometheus metrics endpoint (on separate port)
 
 ## Configuration

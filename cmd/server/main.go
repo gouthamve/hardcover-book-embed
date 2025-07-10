@@ -68,11 +68,9 @@ func main() {
 		http.ServeFile(w, r, "./web/embed.html")
 	})
 
-	mux.HandleFunc("GET /widget.js", func(w http.ResponseWriter, r *http.Request) {
-		w.Header().Set("Content-Type", "application/javascript")
-		w.Header().Set("Access-Control-Allow-Origin", "*")
-		http.ServeFile(w, r, "./web/widget.js")
-	})
+	// Static file handler with caching
+	staticHandler := api.NewStaticHandler("./web/static")
+	mux.Handle("/static/", http.StripPrefix("/static/", staticHandler))
 
 	// Initialize metrics
 	metrics.Init()
