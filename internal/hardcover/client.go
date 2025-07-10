@@ -6,6 +6,8 @@ import (
 	"fmt"
 	"net/http"
 	"time"
+	
+	"github.com/gouthamve/hardcover-book-embed/internal/metrics"
 )
 
 const (
@@ -65,15 +67,24 @@ func (c *Client) GetUserBooksByUsername(username string) (*CurrentlyReadingRespo
 	req.Header.Set("Authorization", "Bearer "+c.apiToken)
 	req.Header.Set("User-Agent", UserAgent)
 
+	// Track API request duration
+	start := time.Now()
 	resp, err := c.httpClient.Do(req)
+	duration := time.Since(start).Seconds()
+	metrics.HardcoverAPIRequestDuration.WithLabelValues("currently-reading").Observe(duration)
+	
 	if err != nil {
+		metrics.HardcoverAPIRequestsTotal.WithLabelValues("currently-reading", "error").Inc()
 		return nil, fmt.Errorf("failed to execute request: %w", err)
 	}
 	defer resp.Body.Close()
 
 	if resp.StatusCode != http.StatusOK {
+		metrics.HardcoverAPIRequestsTotal.WithLabelValues("currently-reading", fmt.Sprintf("%d", resp.StatusCode)).Inc()
 		return nil, fmt.Errorf("API request failed with status %d", resp.StatusCode)
 	}
+	
+	metrics.HardcoverAPIRequestsTotal.WithLabelValues("currently-reading", "200").Inc()
 
 	var graphqlResp UserBooksResponse
 	if err := json.NewDecoder(resp.Body).Decode(&graphqlResp); err != nil {
@@ -142,15 +153,24 @@ func (c *Client) GetUserLastReadBooksByUsername(username string) (*CurrentlyRead
 	req.Header.Set("Authorization", "Bearer "+c.apiToken)
 	req.Header.Set("User-Agent", UserAgent)
 
+	// Track API request duration
+	start := time.Now()
 	resp, err := c.httpClient.Do(req)
+	duration := time.Since(start).Seconds()
+	metrics.HardcoverAPIRequestDuration.WithLabelValues("last-read").Observe(duration)
+	
 	if err != nil {
+		metrics.HardcoverAPIRequestsTotal.WithLabelValues("last-read", "error").Inc()
 		return nil, fmt.Errorf("failed to execute request: %w", err)
 	}
 	defer resp.Body.Close()
 
 	if resp.StatusCode != http.StatusOK {
+		metrics.HardcoverAPIRequestsTotal.WithLabelValues("last-read", fmt.Sprintf("%d", resp.StatusCode)).Inc()
 		return nil, fmt.Errorf("API request failed with status %d", resp.StatusCode)
 	}
+	
+	metrics.HardcoverAPIRequestsTotal.WithLabelValues("last-read", "200").Inc()
 
 	var graphqlResp UserBooksResponse
 	if err := json.NewDecoder(resp.Body).Decode(&graphqlResp); err != nil {

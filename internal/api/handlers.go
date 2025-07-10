@@ -9,6 +9,7 @@ import (
 
 	"github.com/gouthamve/hardcover-book-embed/internal/cache"
 	"github.com/gouthamve/hardcover-book-embed/internal/hardcover"
+	"github.com/gouthamve/hardcover-book-embed/internal/metrics"
 )
 
 type Server struct {
@@ -65,11 +66,14 @@ func (s *Server) HandleUserCurrentlyReading(w http.ResponseWriter, r *http.Reque
 	cacheKey := fmt.Sprintf("currently_reading_%s", username)
 
 	if cached, found := s.cache.Get(cacheKey); found {
+		metrics.CacheHitsTotal.WithLabelValues("currently-reading").Inc()
 		log.Printf("Serving cached currently reading books for user: %s", username)
 		w.Header().Set("Content-Type", "application/json")
 		json.NewEncoder(w).Encode(cached)
 		return
 	}
+	
+	metrics.CacheMissesTotal.WithLabelValues("currently-reading").Inc()
 
 	log.Printf("Fetching currently reading books for user: %s", username)
 	books, err := s.client.GetUserBooksByUsername(username)
@@ -115,11 +119,14 @@ func (s *Server) HandleUserLastRead(w http.ResponseWriter, r *http.Request) {
 	cacheKey := fmt.Sprintf("last_read_%s", username)
 
 	if cached, found := s.cache.Get(cacheKey); found {
+		metrics.CacheHitsTotal.WithLabelValues("last-read").Inc()
 		log.Printf("Serving cached last read books for user: %s", username)
 		w.Header().Set("Content-Type", "application/json")
 		json.NewEncoder(w).Encode(cached)
 		return
 	}
+	
+	metrics.CacheMissesTotal.WithLabelValues("last-read").Inc()
 
 	log.Printf("Fetching last read books for user: %s", username)
 	books, err := s.client.GetUserLastReadBooksByUsername(username)

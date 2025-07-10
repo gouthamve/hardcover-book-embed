@@ -7,9 +7,11 @@ import (
 	"strconv"
 	"time"
 
+	"github.com/prometheus/client_golang/prometheus/promhttp"
 	"github.com/gouthamve/hardcover-book-embed/internal/api"
 	"github.com/gouthamve/hardcover-book-embed/internal/cache"
 	"github.com/gouthamve/hardcover-book-embed/internal/hardcover"
+	"github.com/gouthamve/hardcover-book-embed/internal/metrics"
 )
 
 func main() {
@@ -21,6 +23,11 @@ func main() {
 	port := os.Getenv("PORT")
 	if port == "" {
 		port = "8080"
+	}
+	
+	metricsPort := os.Getenv("METRICS_PORT")
+	if metricsPort == "" {
+		metricsPort = "9090"
 	}
 
 	cacheTTLStr := os.Getenv("CACHE_TTL_MINUTES")
@@ -43,9 +50,11 @@ func main() {
 	// Create a new ServeMux
 	mux := http.NewServeMux()
 
-	// Register routes with patterns
-	mux.HandleFunc("GET /api/books/currently-reading/{username}", server.HandleUserCurrentlyReading)
-	mux.HandleFunc("GET /api/books/last-read/{username}", server.HandleUserLastRead)
+	// Register routes with patterns and metrics middleware
+	mux.HandleFunc("GET /api/books/currently-reading/{username}", 
+		api.MetricsMiddleware("currently-reading")(server.HandleUserCurrentlyReading))
+	mux.HandleFunc("GET /api/books/last-read/{username}", 
+		api.MetricsMiddleware("last-read")(server.HandleUserLastRead))
 	
 	// Handle OPTIONS for CORS
 	mux.HandleFunc("OPTIONS /api/books/currently-reading/{username}", server.HandleUserCurrentlyReading)
@@ -65,7 +74,21 @@ func main() {
 		http.ServeFile(w, r, "./web/widget.js")
 	})
 
+	// Initialize metrics
+	metrics.Init()
+	
+	// Start metrics server
+	go func() {
+		metricsMux := http.NewServeMux()
+		metricsMux.Handle("/metrics", promhttp.Handler())
+		log.Printf("Metrics server starting on port %s", metricsPort)
+		if err := http.ListenAndServe(":"+metricsPort, metricsMux); err != nil {
+			log.Fatal("Metrics server failed to start:", err)
+		}
+	}()
+
 	log.Printf("Server starting on port %s", port)
+	log.Printf("Metrics available on port %s/metrics", metricsPort)
 	log.Printf("Cache TTL: %v", cacheTTL)
 	log.Printf("Allowed origins: %s", allowedOrigins)
 

@@ -90,6 +90,7 @@ Or use the API directly:
 - `GET /api/books/last-read/:username` - Returns last read books for a user  
 - `GET /embed.html` - Embeddable HTML component
 - `GET /widget.js` - JavaScript widget for embedding
+- `GET :9090/metrics` - Prometheus metrics endpoint (on separate port)
 
 ## Configuration
 
@@ -97,6 +98,7 @@ Environment variables:
 
 - `HARDCOVER_API_TOKEN` (required) - Your Hardcover API token
 - `PORT` (optional) - Server port (default: 8080)
+- `METRICS_PORT` (optional) - Metrics server port (default: 9090)
 - `CACHE_TTL_MINUTES` (optional) - Cache duration in minutes (default: 30)
 - `ALLOWED_ORIGINS` (optional) - CORS allowed origins (default: *)
 
@@ -185,6 +187,22 @@ The HTML component includes CSS custom properties for easy theming:
     --bg-color: #ffffff;
     /* ... and more */
 }
+```
+
+## Monitoring
+
+The application exposes Prometheus metrics on a separate port (default: 9090) at `/metrics`. Available metrics include:
+
+- **HTTP Metrics**: Request counts, latency, and in-flight requests
+- **Cache Metrics**: Hit/miss rates, cache size, and evictions
+- **API Metrics**: Hardcover API request counts and latency
+
+Example Prometheus scrape configuration:
+```yaml
+scrape_configs:
+  - job_name: 'hardcover-embed'
+    static_configs:
+      - targets: ['localhost:9090']
 ```
 
 ## Rate Limiting
