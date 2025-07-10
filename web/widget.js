@@ -236,7 +236,7 @@
             if (this.config.showPoweredBy) {
                 html += `
                     <div class="hw-powered-by">
-                        <a href="https://hardcover.app" target="_blank" rel="noopener">Currently reading on Hardcover</a>
+                        <a href="https://hardcover.app/@${this.config.username}" target="_blank" rel="noopener">Currently reading on Hardcover</a>
                     </div>
                 `;
             }

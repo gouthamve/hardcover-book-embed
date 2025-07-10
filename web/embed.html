@@ -163,7 +163,7 @@
         <ul class="books-grid" id="books-grid" style="display: none;"></ul>
         
         <div class="powered-by">
-            <a href="https://hardcover.app" target="_blank" rel="noopener">Currently reading on Hardcover</a>
+            <a href="https://hardcover.app/@${username}" target="_blank" rel="noopener" id="powered-by-link">Currently reading on Hardcover</a>
         </div>
     </div>
 
@@ -183,8 +183,14 @@
 
             const elements = {
                 loading: document.getElementById('loading'),
-                booksGrid: document.getElementById('books-grid')
+                booksGrid: document.getElementById('books-grid'),
+                poweredByLink: document.getElementById('powered-by-link')
             };
+            
+            // Update the powered-by link with the username
+            if (elements.poweredByLink && username) {
+                elements.poweredByLink.href = `https://hardcover.app/@${username}`;
+            }
 
             function renderBook(book) {
                 const cover = book.book.image && book.book.image.url
