@@ -2,11 +2,13 @@ package hardcover
 
 import (
 	"bytes"
+	"context"
 	"encoding/json"
 	"fmt"
 	"net/http"
 	"time"
 	
+	"golang.org/x/time/rate"
 	"github.com/gouthamve/hardcover-book-embed/internal/metrics"
 )
 
@@ -16,20 +18,38 @@ const (
 )
 
 type Client struct {
-	apiToken   string
-	httpClient *http.Client
+	apiToken    string
+	httpClient  *http.Client
+	rateLimiter *rate.Limiter
 }
 
 func NewClient(apiToken string) *Client {
+	// Hardcover API allows 60 requests per minute
+	// We'll be conservative and limit to 50 requests per minute (0.83 per second)
+	// with a burst of 5 to handle short spikes
+	limiter := rate.NewLimiter(rate.Limit(0.83), 5)
+	
 	return &Client{
 		apiToken: apiToken,
 		httpClient: &http.Client{
 			Timeout: 30 * time.Second,
 		},
+		rateLimiter: limiter,
 	}
 }
 
 func (c *Client) GetUserBooksByUsername(username string) (*CurrentlyReadingResponse, error) {
+	// Wait for rate limiter
+	ctx := context.Background()
+	waitStart := time.Now()
+	if err := c.rateLimiter.Wait(ctx); err != nil {
+		return nil, fmt.Errorf("rate limiter error: %w", err)
+	}
+	waitDuration := time.Since(waitStart).Seconds()
+	if waitDuration > 0.001 { // Only record if we actually waited
+		metrics.RateLimitWaitDuration.WithLabelValues("currently-reading").Observe(waitDuration)
+	}
+	
 	query := fmt.Sprintf(`{
 		user_books(
 			where: {user: {username: {_eq: "%s"}}, status_id: {_eq: 2}},
@@ -115,6 +135,17 @@ func (c *Client) GetUserBooksByUsername(username string) (*CurrentlyReadingRespo
 }
 
 func (c *Client) GetUserLastReadBooksByUsername(username string) (*CurrentlyReadingResponse, error) {
+	// Wait for rate limiter
+	ctx := context.Background()
+	waitStart := time.Now()
+	if err := c.rateLimiter.Wait(ctx); err != nil {
+		return nil, fmt.Errorf("rate limiter error: %w", err)
+	}
+	waitDuration := time.Since(waitStart).Seconds()
+	if waitDuration > 0.001 { // Only record if we actually waited
+		metrics.RateLimitWaitDuration.WithLabelValues("last-read").Observe(waitDuration)
+	}
+	
 	query := fmt.Sprintf(`{
 		user_books(
 			where: {user: {username: {_eq: "%s"}}, status_id: {_eq: 3}},

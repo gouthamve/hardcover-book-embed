@@ -11,6 +11,8 @@ import (
 	"strings"
 	"sync"
 	"time"
+	
+	"github.com/gouthamve/hardcover-book-embed/internal/metrics"
 )
 
 // StaticFile holds metadata about a static file
@@ -95,8 +97,12 @@ func (h *StaticHandler) getOrUpdateFileInfo(urlPath string) (*StaticFile, error)
 
 // ServeHTTP handles static file requests
 func (h *StaticHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
+	// Start timing the request
+	start := time.Now()
+	
 	// Only handle GET and HEAD
 	if r.Method != "GET" && r.Method != "HEAD" {
+		metrics.StaticFileRequestsTotal.WithLabelValues("", "405").Inc()
 		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
 		return
 	}
@@ -104,6 +110,7 @@ func (h *StaticHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	// Clean the path
 	urlPath := strings.TrimPrefix(r.URL.Path, "/static/")
 	if urlPath == "" || strings.Contains(urlPath, "..") {
+		metrics.StaticFileRequestsTotal.WithLabelValues(urlPath, "404").Inc()
 		http.NotFound(w, r)
 		return
 	}
@@ -112,8 +119,10 @@ func (h *StaticHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	fileInfo, err := h.getOrUpdateFileInfo(urlPath)
 	if err != nil {
 		if os.IsNotExist(err) {
+			metrics.StaticFileRequestsTotal.WithLabelValues(urlPath, "404").Inc()
 			http.NotFound(w, r)
 		} else {
+			metrics.StaticFileRequestsTotal.WithLabelValues(urlPath, "500").Inc()
 			http.Error(w, "Internal server error", http.StatusInternalServerError)
 		}
 		return
@@ -147,6 +156,8 @@ func (h *StaticHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	// Check If-None-Match (ETag)
 	if match := r.Header.Get("If-None-Match"); match != "" {
 		if match == fileInfo.ETag {
+			metrics.StaticFileRequestsTotal.WithLabelValues(urlPath, "304").Inc()
+			metrics.StaticFileRequestDuration.WithLabelValues(urlPath).Observe(time.Since(start).Seconds())
 			w.WriteHeader(http.StatusNotModified)
 			return
 		}
@@ -156,6 +167,8 @@ func (h *StaticHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	if modifiedSince := r.Header.Get("If-Modified-Since"); modifiedSince != "" {
 		t, err := time.Parse(http.TimeFormat, modifiedSince)
 		if err == nil && !fileInfo.LastModified.After(t) {
+			metrics.StaticFileRequestsTotal.WithLabelValues(urlPath, "304").Inc()
+			metrics.StaticFileRequestDuration.WithLabelValues(urlPath).Observe(time.Since(start).Seconds())
 			w.WriteHeader(http.StatusNotModified)
 			return
 		}
@@ -166,4 +179,8 @@ func (h *StaticHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 	// Serve the file
 	http.ServeFile(w, r, fileInfo.Path)
+	
+	// Record successful request
+	metrics.StaticFileRequestsTotal.WithLabelValues(urlPath, "200").Inc()
+	metrics.StaticFileRequestDuration.WithLabelValues(urlPath).Observe(time.Since(start).Seconds())
 }

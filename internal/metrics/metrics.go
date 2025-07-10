@@ -79,6 +79,34 @@ var (
 		},
 		[]string{"endpoint", "username"},
 	)
+	
+	// Rate Limiting Metrics
+	RateLimitWaitDuration = promauto.NewHistogramVec(
+		prometheus.HistogramOpts{
+			Name:    "hardcoverembed_rate_limit_wait_duration_seconds",
+			Help:    "Time spent waiting for rate limiter",
+			Buckets: []float64{0.001, 0.005, 0.01, 0.025, 0.05, 0.1, 0.25, 0.5, 1, 2.5, 5, 10},
+		},
+		[]string{"endpoint"},
+	)
+	
+	// Static File Metrics
+	StaticFileRequestsTotal = promauto.NewCounterVec(
+		prometheus.CounterOpts{
+			Name: "hardcoverembed_static_file_requests_total",
+			Help: "Total number of static file requests",
+		},
+		[]string{"file", "status"},
+	)
+	
+	StaticFileRequestDuration = promauto.NewHistogramVec(
+		prometheus.HistogramOpts{
+			Name:    "hardcoverembed_static_file_request_duration_seconds",
+			Help:    "Static file request latency in seconds",
+			Buckets: prometheus.DefBuckets,
+		},
+		[]string{"file"},
+	)
 )
 
 // Init initializes the metrics (placeholder for any future initialization needs)
