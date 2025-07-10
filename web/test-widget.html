@@ -70,19 +70,30 @@
         .custom-styled .hw-book-cover {
             border-radius: 12px !important;
         }
+        
+        .notice {
+            background: #fef3c7;
+            border: 1px solid #f59e0b;
+            padding: 1rem;
+            border-radius: 6px;
+            margin-bottom: 2rem;
+        }
     </style>
 </head>
 <body>
     <h1>Hardcover Widget Demo</h1>
+    <div class="notice">
+        <strong>Note:</strong> Username is now required! Replace "gouthamve" with any Hardcover username to see their books.
+    </div>
     <p>This page demonstrates various ways to embed the Hardcover currently reading widget.</p>
 
     <!-- Default Widget -->
     <div class="demo-section">
         <h2>1. Default Widget</h2>
         <p>Simple embed with default settings:</p>
-        <pre><code>&lt;div data-hardcover-widget data-api-url="http://localhost:8080"&gt;&lt;/div&gt;</code></pre>
+        <pre><code>&lt;div data-hardcover-widget data-api-url="http://localhost:8080" data-username="your-username"&gt;&lt;/div&gt;</code></pre>
         
-        <div data-hardcover-widget data-api-url="http://localhost:8080"></div>
+        <div data-hardcover-widget data-api-url="http://localhost:8080" data-username="gouthamve"></div>
     </div>
 
     <!-- Customized Size -->
@@ -91,6 +102,7 @@
         <p>Widget with custom width and column settings:</p>
         <pre><code>&lt;div data-hardcover-widget 
      data-api-url="http://localhost:8080"
+     data-username="your-username"
      data-max-width="500px"
      data-min-column-width="100px"
      data-gap="0.5rem"&gt;&lt;/div&gt;</code></pre>
@@ -98,6 +110,7 @@
         <div 
             data-hardcover-widget 
             data-api-url="http://localhost:8080"
+            data-username="gouthamve"
             data-max-width="500px"
             data-min-column-width="100px"
             data-gap="0.5rem">
@@ -114,6 +127,7 @@
             <div 
                 data-hardcover-widget
                 data-api-url="http://localhost:8080"
+                data-username="gouthamve"
                 data-max-width="100%"
                 data-min-column-width="80px"
                 data-gap="0.5rem">
@@ -127,11 +141,13 @@
         <p>Widget with exactly 4 columns:</p>
         <pre><code>&lt;div data-hardcover-widget 
      data-api-url="http://localhost:8080"
+     data-username="your-username"
      data-columns="4"&gt;&lt;/div&gt;</code></pre>
         
         <div 
             data-hardcover-widget
             data-api-url="http://localhost:8080"
+            data-username="gouthamve"
             data-columns="4">
         </div>
     </div>
@@ -142,11 +158,13 @@
         <p>Hide the attribution link:</p>
         <pre><code>&lt;div data-hardcover-widget 
      data-api-url="http://localhost:8080"
+     data-username="your-username"
      data-show-powered-by="false"&gt;&lt;/div&gt;</code></pre>
         
         <div 
             data-hardcover-widget
             data-api-url="http://localhost:8080"
+            data-username="gouthamve"
             data-show-powered-by="false"
             data-max-width="400px">
         </div>
@@ -160,6 +178,7 @@
         <div 
             data-hardcover-widget
             data-api-url="http://localhost:8080"
+            data-username="gouthamve"
             data-max-width="600px">
         </div>
     </div>
@@ -172,6 +191,7 @@
     document.getElementById('js-widget'),
     {
         apiUrl: 'http://localhost:8080',
+        username: 'gouthamve',
         maxWidth: '400px',
         showPoweredBy: true
     }
@@ -184,11 +204,11 @@
     <div class="demo-section">
         <h2>8. Iframe Method</h2>
         <p>Completely isolated iframe embed:</p>
-        <pre><code>&lt;iframe src="http://localhost:8080/embed.html" 
+        <pre><code>&lt;iframe src="http://localhost:8080/embed.html?username=your-username" 
         width="100%" height="300" frameborder="0"&gt;&lt;/iframe&gt;</code></pre>
         
         <iframe 
-            src="http://localhost:8080/embed.html" 
+            src="http://localhost:8080/embed.html?username=gouthamve" 
             width="100%" 
             height="300" 
             frameborder="0"
@@ -207,6 +227,7 @@
                 document.getElementById('js-widget'),
                 {
                     apiUrl: 'http://localhost:8080',
+                    username: 'gouthamve',
                     maxWidth: '400px',
                     minColumnWidth: '90px',
                     gap: '0.75rem',

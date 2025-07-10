@@ -34,7 +34,12 @@ dev:
 # Run tests
 test:
 	@echo "Running API tests..."
-	@cd test && ./test.sh
+	@if [ -z "$(USERNAME)" ]; then \
+		echo "Error: USERNAME is required"; \
+		echo "Usage: make test USERNAME=your-username"; \
+		exit 1; \
+	fi
+	@cd test && ./test.sh $(USERNAME)
 
 # Run Go tests
 test-go:

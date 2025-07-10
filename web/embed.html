@@ -171,6 +171,15 @@
         (function() {
             const API_BASE = window.location.origin;
             const REFRESH_INTERVAL = 30 * 60 * 1000; // 30 minutes
+            
+            // Get username from query parameter
+            const urlParams = new URLSearchParams(window.location.search);
+            const username = urlParams.get('username');
+            
+            if (!username) {
+                document.getElementById('loading').innerHTML = '<div class="error">Username parameter is required. Add ?username=YOUR_USERNAME to the URL.</div>';
+                return;
+            }
 
             const elements = {
                 loading: document.getElementById('loading'),
@@ -211,7 +220,7 @@
 
             async function fetchBooks() {
                 try {
-                    const response = await fetch(`${API_BASE}/api/books/currently-reading`);
+                    const response = await fetch(`${API_BASE}/api/books/currently-reading/${username}`);
                     
                     if (!response.ok) {
                         throw new Error(`HTTP ${response.status}`);

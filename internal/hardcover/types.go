@@ -23,11 +23,9 @@ type UserBook struct {
 	UpdatedAt time.Time `json:"updated_at"`
 }
 
-type GraphQLResponse struct {
+type UserBooksResponse struct {
 	Data struct {
-		Me []struct {
-			UserBooks []UserBook `json:"user_books"`
-		} `json:"me"`
+		UserBooks []UserBook `json:"user_books"`
 	} `json:"data"`
 	Errors []struct {
 		Message string `json:"message"`

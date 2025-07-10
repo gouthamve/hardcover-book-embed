@@ -40,7 +40,7 @@ func main() {
 	memCache := cache.NewMemoryCache(cacheTTL)
 	server := api.NewServer(client, memCache, allowedOrigins)
 
-	http.HandleFunc("/api/books/currently-reading", server.HandleCurrentlyReading)
+	http.HandleFunc("/api/books/currently-reading/", server.HandleUserCurrentlyReading)
 	http.HandleFunc("/api/health", server.HandleHealth)
 
 	http.HandleFunc("/test-widget.html", func(w http.ResponseWriter, r *http.Request) {

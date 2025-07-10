@@ -16,13 +16,18 @@ func main() {
 		log.Fatal("HARDCOVER_API_TOKEN environment variable is required")
 	}
 
+	if len(os.Args) < 2 {
+		log.Fatal("Usage: test_hardcover <username>")
+	}
+
+	username := os.Args[1]
 	client := hardcover.NewClient(apiToken)
 
-	fmt.Println("Fetching currently reading books from Hardcover API...")
+	fmt.Printf("Fetching currently reading books for user: %s\n", username)
 	fmt.Println("API Token:", apiToken[:10]+"...")
 	fmt.Println()
 
-	books, err := client.GetCurrentlyReadingBooks()
+	books, err := client.GetUserBooksByUsername(username)
 	if err != nil {
 		log.Fatalf("Error fetching books: %v", err)
 	}

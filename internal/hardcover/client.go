@@ -27,23 +27,21 @@ func NewClient(apiToken string) *Client {
 	}
 }
 
-func (c *Client) GetCurrentlyReadingBooks() (*CurrentlyReadingResponse, error) {
-	query := `{
-		me {
-			user_books(where: {status_id: {_eq: 2}}) {
-				rating
-				updated_at
-				book {
-					id
-					title
-					image {
-						url
-					}
-					slug
+func (c *Client) GetUserBooksByUsername(username string) (*CurrentlyReadingResponse, error) {
+	query := fmt.Sprintf(`{
+		user_books(where: {user: {username: {_eq: "%s"}}, status_id: {_eq: 2}}) {
+			rating
+			updated_at
+			book {
+				id
+				title
+				image {
+					url
 				}
+				slug
 			}
 		}
-	}`
+	}`, username)
 
 	reqBody := map[string]string{
 		"query": query,
@@ -73,7 +71,7 @@ func (c *Client) GetCurrentlyReadingBooks() (*CurrentlyReadingResponse, error) {
 		return nil, fmt.Errorf("API request failed with status %d", resp.StatusCode)
 	}
 
-	var graphqlResp GraphQLResponse
+	var graphqlResp UserBooksResponse
 	if err := json.NewDecoder(resp.Body).Decode(&graphqlResp); err != nil {
 		return nil, fmt.Errorf("failed to decode response: %w", err)
 	}
@@ -82,17 +80,8 @@ func (c *Client) GetCurrentlyReadingBooks() (*CurrentlyReadingResponse, error) {
 		return nil, fmt.Errorf("GraphQL errors: %v", graphqlResp.Errors)
 	}
 
-	// Handle empty Me array
-	if len(graphqlResp.Data.Me) == 0 {
-		return &CurrentlyReadingResponse{
-			Books:     []UserBook{},
-			Count:     0,
-			UpdatedAt: time.Now(),
-		}, nil
-	}
-
 	// Process books and add fallback images
-	books := graphqlResp.Data.Me[0].UserBooks
+	books := graphqlResp.Data.UserBooks
 	for i := range books {
 		if books[i].Book.Image == nil {
 			// Generate a fallback image based on book ID

@@ -119,12 +119,12 @@ go build -o hardcover-embed cmd/server/main.go
 ### Testing
 
 ```bash
-# Run API tests
-make test
+# Run API tests (provide a username)
+./test/test.sh your-username
 
 # Or manually test the API
 curl http://localhost:8080/api/health
-curl http://localhost:8080/api/books/currently-reading
+curl http://localhost:8080/api/books/currently-reading/your-username
 ```
 
 ### Development Commands

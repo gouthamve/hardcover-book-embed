@@ -5,6 +5,7 @@
     // Default configuration
     const defaultConfig = {
         apiUrl: 'http://localhost:8080',
+        username: null,
         maxWidth: '800px',
         columns: 'auto-fill',
         minColumnWidth: '120px',
@@ -173,10 +174,15 @@
         }
 
         async loadBooks() {
+            if (!this.config.username) {
+                this.showError('Username is required. Please add data-username attribute.');
+                return;
+            }
+            
             this.showLoading();
             
             try {
-                const response = await fetch(`${this.config.apiUrl}/api/books/currently-reading`);
+                const response = await fetch(`${this.config.apiUrl}/api/books/currently-reading/${this.config.username}`);
                 
                 if (!response.ok) {
                     throw new Error(`HTTP ${response.status}`);
@@ -280,6 +286,7 @@
             const config = {};
             
             if (element.dataset.apiUrl) config.apiUrl = element.dataset.apiUrl;
+            if (element.dataset.username) config.username = element.dataset.username;
             if (element.dataset.maxWidth) config.maxWidth = element.dataset.maxWidth;
             if (element.dataset.columns) config.columns = element.dataset.columns;
             if (element.dataset.minColumnWidth) config.minColumnWidth = element.dataset.minColumnWidth;

@@ -1,6 +1,6 @@
 # Hardcover Book Widget - Embedding Guide
 
-This guide explains how to embed your Hardcover currently reading books on any website.
+This guide explains how to embed any Hardcover user's currently reading books on any website.
 
 ## Quick Start
 
@@ -8,13 +8,13 @@ The simplest way to embed your books is to add a single line of HTML to your web
 
 ```html
 <!-- Add this where you want the books to appear -->
-<div data-hardcover-widget data-api-url="http://localhost:8080"></div>
+<div data-hardcover-widget data-api-url="http://localhost:8080" data-username="your-username"></div>
 
 <!-- Add this before closing </body> tag -->
 <script src="http://localhost:8080/widget.js"></script>
 ```
 
-That's it! Your currently reading books will appear automatically.
+That's it! Replace "your-username" with any Hardcover username to show their currently reading books.
 
 ## Embedding Methods
 
@@ -23,7 +23,7 @@ That's it! Your currently reading books will appear automatically.
 Add these two lines to your HTML:
 
 ```html
-<div data-hardcover-widget data-api-url="http://localhost:8080"></div>
+<div data-hardcover-widget data-api-url="http://localhost:8080" data-username="your-username"></div>
 <script src="http://localhost:8080/widget.js"></script>
 ```
 
@@ -33,7 +33,7 @@ For complete isolation from your site's styles:
 
 ```html
 <iframe 
-    src="http://localhost:8080/embed.html" 
+    src="http://localhost:8080/embed.html?username=your-username" 
     width="100%" 
     height="400"
     frameborder="0"
@@ -54,6 +54,7 @@ For more control over initialization:
         document.getElementById('my-books'),
         {
             apiUrl: 'http://localhost:8080',
+            username: 'your-username',
             maxWidth: '600px',
             showPoweredBy: true
         }
@@ -69,6 +70,7 @@ You can customize the widget using data attributes:
 <div 
     data-hardcover-widget
     data-api-url="http://localhost:8080"
+    data-username="your-username"
     data-max-width="600px"
     data-columns="auto-fill"
     data-min-column-width="100px"
@@ -82,6 +84,7 @@ You can customize the widget using data attributes:
 | Option | Default | Description |
 |--------|---------|-------------|
 | `data-api-url` | Required | Your Hardcover embed server URL |
+| `data-username` | Required | Hardcover username to display books for |
 | `data-max-width` | `800px` | Maximum width of the widget |
 | `data-columns` | `auto-fill` | Grid columns (CSS grid value) |
 | `data-min-column-width` | `120px` | Minimum width for each book |
@@ -99,6 +102,7 @@ You can customize the widget using data attributes:
     <div 
         data-hardcover-widget
         data-api-url="http://localhost:8080"
+        data-username="your-username"
         data-max-width="300px"
         data-min-column-width="80px">
     </div>
@@ -116,6 +120,7 @@ You can customize the widget using data attributes:
         <div 
             data-hardcover-widget
             data-api-url="http://localhost:8080"
+            data-username="your-username"
             data-columns="6"
             data-gap="2rem">
         </div>
@@ -133,14 +138,16 @@ You can have multiple widgets on the same page:
 <div 
     data-hardcover-widget
     data-api-url="http://localhost:8080"
+    data-username="alice"
     data-max-width="400px"
     class="featured-books">
 </div>
 
-<!-- Sidebar books -->
+<!-- Sidebar books for different user -->
 <div 
     data-hardcover-widget
     data-api-url="http://localhost:8080"
+    data-username="bob"
     data-max-width="200px"
     data-min-column-width="60px"
     class="sidebar-books">
@@ -179,14 +186,14 @@ The widget comes with default styles, but you can customize it with CSS:
 
 1. Add to a post/page using the HTML block:
 ```html
-<div data-hardcover-widget data-api-url="http://your-server.com"></div>
+<div data-hardcover-widget data-api-url="http://your-server.com" data-username="your-username"></div>
 <script src="http://your-server.com/widget.js"></script>
 ```
 
 2. Or add to your theme's `footer.php`:
 ```php
 <?php if (is_page('about')) : ?>
-    <div data-hardcover-widget data-api-url="http://your-server.com"></div>
+    <div data-hardcover-widget data-api-url="http://your-server.com" data-username="your-username"></div>
     <script src="http://your-server.com/widget.js"></script>
 <?php endif; ?>
 ```
@@ -213,6 +220,7 @@ function CurrentlyReading() {
         <div 
             data-hardcover-widget
             data-api-url="http://your-server.com"
+            data-username="your-username"
             data-max-width="600px"
         />
     );
@@ -226,6 +234,7 @@ function CurrentlyReading() {
     <div 
         data-hardcover-widget
         :data-api-url="apiUrl"
+        :data-username="username"
         data-max-width="600px"
     ></div>
 </template>
@@ -234,7 +243,8 @@ function CurrentlyReading() {
 export default {
     data() {
         return {
-            apiUrl: 'http://your-server.com'
+            apiUrl: 'http://your-server.com',
+            username: 'your-username'
         }
     },
     mounted() {
@@ -254,7 +264,7 @@ For Hugo, Jekyll, Gatsby, etc., add the HTML to your templates:
 ```html
 <!-- Hugo shortcode example -->
 {{< hardcover-widget >}}
-    <div data-hardcover-widget data-api-url="{{ .Site.Params.hardcoverApiUrl }}"></div>
+    <div data-hardcover-widget data-api-url="{{ .Site.Params.hardcoverApiUrl }}" data-username="{{ .Site.Params.hardcoverUsername }}"></div>
     <script src="{{ .Site.Params.hardcoverApiUrl }}/widget.js"></script>
 {{< /hardcover-widget >}}
 ```
@@ -265,8 +275,9 @@ For Hugo, Jekyll, Gatsby, etc., add the HTML to your templates:
 
 1. Check that your server is running
 2. Verify the `data-api-url` is correct
-3. Check browser console for errors
-4. Ensure CORS is properly configured on your server
+3. Ensure `data-username` is provided and valid
+4. Check browser console for errors
+5. Ensure CORS is properly configured on your server
 
 ### Styling issues
 
@@ -328,7 +339,8 @@ Example production embed:
 ```html
 <div 
     data-hardcover-widget
-    data-api-url="https://books-api.yourdomain.com">
+    data-api-url="https://books-api.yourdomain.com"
+    data-username="your-username">
 </div>
 <script 
     src="https://books-api.yourdomain.com/widget.js"
