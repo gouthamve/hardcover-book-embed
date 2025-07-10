@@ -71,20 +71,20 @@ func (c *Client) GetUserBooksByUsername(username string) (*CurrentlyReadingRespo
 	start := time.Now()
 	resp, err := c.httpClient.Do(req)
 	duration := time.Since(start).Seconds()
-	metrics.HardcoverAPIRequestDuration.WithLabelValues("currently-reading").Observe(duration)
+	metrics.HardcoverAPIRequestDuration.WithLabelValues("currently-reading", username).Observe(duration)
 	
 	if err != nil {
-		metrics.HardcoverAPIRequestsTotal.WithLabelValues("currently-reading", "error").Inc()
+		metrics.HardcoverAPIRequestsTotal.WithLabelValues("currently-reading", "error", username).Inc()
 		return nil, fmt.Errorf("failed to execute request: %w", err)
 	}
 	defer resp.Body.Close()
 
 	if resp.StatusCode != http.StatusOK {
-		metrics.HardcoverAPIRequestsTotal.WithLabelValues("currently-reading", fmt.Sprintf("%d", resp.StatusCode)).Inc()
+		metrics.HardcoverAPIRequestsTotal.WithLabelValues("currently-reading", fmt.Sprintf("%d", resp.StatusCode), username).Inc()
 		return nil, fmt.Errorf("API request failed with status %d", resp.StatusCode)
 	}
 	
-	metrics.HardcoverAPIRequestsTotal.WithLabelValues("currently-reading", "200").Inc()
+	metrics.HardcoverAPIRequestsTotal.WithLabelValues("currently-reading", "200", username).Inc()
 
 	var graphqlResp UserBooksResponse
 	if err := json.NewDecoder(resp.Body).Decode(&graphqlResp); err != nil {
@@ -157,20 +157,20 @@ func (c *Client) GetUserLastReadBooksByUsername(username string) (*CurrentlyRead
 	start := time.Now()
 	resp, err := c.httpClient.Do(req)
 	duration := time.Since(start).Seconds()
-	metrics.HardcoverAPIRequestDuration.WithLabelValues("last-read").Observe(duration)
+	metrics.HardcoverAPIRequestDuration.WithLabelValues("last-read", username).Observe(duration)
 	
 	if err != nil {
-		metrics.HardcoverAPIRequestsTotal.WithLabelValues("last-read", "error").Inc()
+		metrics.HardcoverAPIRequestsTotal.WithLabelValues("last-read", "error", username).Inc()
 		return nil, fmt.Errorf("failed to execute request: %w", err)
 	}
 	defer resp.Body.Close()
 
 	if resp.StatusCode != http.StatusOK {
-		metrics.HardcoverAPIRequestsTotal.WithLabelValues("last-read", fmt.Sprintf("%d", resp.StatusCode)).Inc()
+		metrics.HardcoverAPIRequestsTotal.WithLabelValues("last-read", fmt.Sprintf("%d", resp.StatusCode), username).Inc()
 		return nil, fmt.Errorf("API request failed with status %d", resp.StatusCode)
 	}
 	
-	metrics.HardcoverAPIRequestsTotal.WithLabelValues("last-read", "200").Inc()
+	metrics.HardcoverAPIRequestsTotal.WithLabelValues("last-read", "200", username).Inc()
 
 	var graphqlResp UserBooksResponse
 	if err := json.NewDecoder(resp.Body).Decode(&graphqlResp); err != nil {

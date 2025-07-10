@@ -37,7 +37,7 @@ var (
 			Name: "hardcoverembed_cache_hits_total",
 			Help: "Total number of cache hits",
 		},
-		[]string{"endpoint"},
+		[]string{"endpoint", "username"},
 	)
 
 	CacheMissesTotal = promauto.NewCounterVec(
@@ -45,7 +45,7 @@ var (
 			Name: "hardcoverembed_cache_misses_total",
 			Help: "Total number of cache misses",
 		},
-		[]string{"endpoint"},
+		[]string{"endpoint", "username"},
 	)
 
 	CacheSize = promauto.NewGauge(
@@ -68,7 +68,7 @@ var (
 			Name: "hardcoverembed_hardcover_api_requests_total",
 			Help: "Total number of Hardcover API requests",
 		},
-		[]string{"endpoint", "status"},
+		[]string{"endpoint", "status", "username"},
 	)
 
 	HardcoverAPIRequestDuration = promauto.NewHistogramVec(
@@ -77,7 +77,7 @@ var (
 			Help:    "Hardcover API request latency in seconds",
 			Buckets: prometheus.DefBuckets,
 		},
-		[]string{"endpoint"},
+		[]string{"endpoint", "username"},
 	)
 )
 
