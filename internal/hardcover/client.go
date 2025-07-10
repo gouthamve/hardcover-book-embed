@@ -29,7 +29,11 @@ func NewClient(apiToken string) *Client {
 
 func (c *Client) GetUserBooksByUsername(username string) (*CurrentlyReadingResponse, error) {
 	query := fmt.Sprintf(`{
-		user_books(where: {user: {username: {_eq: "%s"}}, status_id: {_eq: 2}}) {
+		user_books(
+			where: {user: {username: {_eq: "%s"}}, status_id: {_eq: 2}},
+			order_by: {updated_at: desc},
+			limit: 4
+		) {
 			rating
 			updated_at
 			book {
