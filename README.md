@@ -208,7 +208,3 @@ scrape_configs:
 ## Rate Limiting
 
 The Hardcover API has a rate limit of 60 requests per minute. This server implements caching with a default TTL of 30 minutes to ensure you stay well within these limits.
-
-## License
-
-MIT License - see LICENSE file for details.
