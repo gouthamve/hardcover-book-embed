@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"regexp"
 	"strings"
 
 	"github.com/gouthamve/hardcover-book-embed/internal/cache"
@@ -89,14 +90,12 @@ func (s *Server) HandleUserCurrentlyReading(w http.ResponseWriter, r *http.Reque
 	json.NewEncoder(w).Encode(books)
 }
 
+// usernameRegex validates usernames containing only alphanumeric characters, hyphens, and underscores
+var usernameRegex = regexp.MustCompile(`^[a-zA-Z0-9_-]+$`)
+
 // isValidUsername checks if the username contains only alphanumeric characters, hyphens, and underscores
 func isValidUsername(username string) bool {
-	for _, r := range username {
-		if !((r >= 'a' && r <= 'z') || (r >= 'A' && r <= 'Z') || (r >= '0' && r <= '9') || r == '-' || r == '_') {
-			return false
-		}
-	}
-	return true
+	return usernameRegex.MatchString(username)
 }
 
 func (s *Server) HandleUserLastRead(w http.ResponseWriter, r *http.Request) {
