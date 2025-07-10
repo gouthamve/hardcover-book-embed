@@ -88,7 +88,6 @@ Or use the API directly:
 
 - `GET /api/books/currently-reading/:username` - Returns currently reading books for a user
 - `GET /api/books/last-read/:username` - Returns last read books for a user  
-- `GET /api/health` - Health check endpoint
 - `GET /embed.html` - Embeddable HTML component
 - `GET /widget.js` - JavaScript widget for embedding
 

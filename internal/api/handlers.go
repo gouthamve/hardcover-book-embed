@@ -53,22 +53,8 @@ func (s *Server) HandleUserCurrentlyReading(w http.ResponseWriter, r *http.Reque
 		return
 	}
 
-	if r.Method != "GET" {
-		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
-		return
-	}
-
-	// Extract username from URL path
-	// Expected format: /api/books/currently-reading/{username}
-	path := r.URL.Path
-	prefix := "/api/books/currently-reading/"
-	if !strings.HasPrefix(path, prefix) {
-		http.Error(w, "Invalid path", http.StatusBadRequest)
-		return
-	}
-
-	username := strings.TrimPrefix(path, prefix)
-	username = strings.TrimSuffix(username, "/")
+	// Extract username from path parameter
+	username := r.PathValue("username")
 
 	// Validate username (alphanumeric, hyphens, underscores)
 	if username == "" || !isValidUsername(username) {
@@ -117,22 +103,8 @@ func (s *Server) HandleUserLastRead(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if r.Method != "GET" {
-		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
-		return
-	}
-
-	// Extract username from URL path
-	// Expected format: /api/books/last-read/{username}
-	path := r.URL.Path
-	prefix := "/api/books/last-read/"
-	if !strings.HasPrefix(path, prefix) {
-		http.Error(w, "Invalid path", http.StatusBadRequest)
-		return
-	}
-
-	username := strings.TrimPrefix(path, prefix)
-	username = strings.TrimSuffix(username, "/")
+	// Extract username from path parameter
+	username := r.PathValue("username")
 
 	// Validate username (alphanumeric, hyphens, underscores)
 	if username == "" || !isValidUsername(username) {
@@ -163,24 +135,3 @@ func (s *Server) HandleUserLastRead(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(books)
 }
 
-func (s *Server) HandleHealth(w http.ResponseWriter, r *http.Request) {
-	s.enableCORS(w, r)
-
-	if r.Method == "OPTIONS" {
-		w.WriteHeader(http.StatusOK)
-		return
-	}
-
-	if r.Method != "GET" {
-		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
-		return
-	}
-
-	response := map[string]string{
-		"status":  "healthy",
-		"service": "hardcover-book-embed",
-	}
-
-	w.Header().Set("Content-Type", "application/json")
-	json.NewEncoder(w).Encode(response)
-}

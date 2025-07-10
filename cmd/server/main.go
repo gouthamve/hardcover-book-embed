@@ -40,19 +40,26 @@ func main() {
 	memCache := cache.NewMemoryCache(cacheTTL)
 	server := api.NewServer(client, memCache, allowedOrigins)
 
-	http.HandleFunc("/api/books/currently-reading/", server.HandleUserCurrentlyReading)
-	http.HandleFunc("/api/books/last-read/", server.HandleUserLastRead)
-	http.HandleFunc("/api/health", server.HandleHealth)
+	// Create a new ServeMux
+	mux := http.NewServeMux()
 
-	http.HandleFunc("/test-widget.html", func(w http.ResponseWriter, r *http.Request) {
+	// Register routes with patterns
+	mux.HandleFunc("GET /api/books/currently-reading/{username}", server.HandleUserCurrentlyReading)
+	mux.HandleFunc("GET /api/books/last-read/{username}", server.HandleUserLastRead)
+	
+	// Handle OPTIONS for CORS
+	mux.HandleFunc("OPTIONS /api/books/currently-reading/{username}", server.HandleUserCurrentlyReading)
+	mux.HandleFunc("OPTIONS /api/books/last-read/{username}", server.HandleUserLastRead)
+
+	mux.HandleFunc("GET /test-widget.html", func(w http.ResponseWriter, r *http.Request) {
 		http.ServeFile(w, r, "./web/test-widget.html")
 	})
 
-	http.HandleFunc("/embed.html", func(w http.ResponseWriter, r *http.Request) {
+	mux.HandleFunc("GET /embed.html", func(w http.ResponseWriter, r *http.Request) {
 		http.ServeFile(w, r, "./web/embed.html")
 	})
 
-	http.HandleFunc("/widget.js", func(w http.ResponseWriter, r *http.Request) {
+	mux.HandleFunc("GET /widget.js", func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Content-Type", "application/javascript")
 		w.Header().Set("Access-Control-Allow-Origin", "*")
 		http.ServeFile(w, r, "./web/widget.js")
@@ -62,7 +69,7 @@ func main() {
 	log.Printf("Cache TTL: %v", cacheTTL)
 	log.Printf("Allowed origins: %s", allowedOrigins)
 
-	if err := http.ListenAndServe(":"+port, nil); err != nil {
+	if err := http.ListenAndServe(":"+port, mux); err != nil {
 		log.Fatal("Server failed to start:", err)
 	}
 }
