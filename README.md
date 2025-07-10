@@ -1,5 +1,7 @@
 # Hardcover Book Embed
 
+**Note**: Built with Claude Code. AI wrote like 95% of the code, including this file.
+
 An embeddable HTML component that displays currently reading or last read books from any Hardcover user, with a Go backend for API proxying and caching.
 
 ## Features
