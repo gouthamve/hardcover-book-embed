@@ -175,6 +175,7 @@
             // Get username from query parameter
             const urlParams = new URLSearchParams(window.location.search);
             const username = urlParams.get('username');
+            const bookType = urlParams.get('type') || 'currently-reading';
             
             if (!username) {
                 document.getElementById('loading').innerHTML = '<div class="error">Username parameter is required. Add ?username=YOUR_USERNAME to the URL.</div>';
@@ -187,9 +188,13 @@
                 poweredByLink: document.getElementById('powered-by-link')
             };
             
-            // Update the powered-by link with the username
+            // Update the powered-by link with the username and text
             if (elements.poweredByLink && username) {
                 elements.poweredByLink.href = `https://hardcover.app/@${username}`;
+                const linkText = bookType === 'last-read' 
+                    ? 'Last read on Hardcover'
+                    : 'Currently reading on Hardcover';
+                elements.poweredByLink.textContent = linkText;
             }
 
             function renderBook(book) {
@@ -226,7 +231,11 @@
 
             async function fetchBooks() {
                 try {
-                    const response = await fetch(`${API_BASE}/api/books/currently-reading/${username}`);
+                    const endpoint = bookType === 'last-read' 
+                        ? `/api/books/last-read/${username}`
+                        : `/api/books/currently-reading/${username}`;
+                    
+                    const response = await fetch(`${API_BASE}${endpoint}`);
                     
                     if (!response.ok) {
                         throw new Error(`HTTP ${response.status}`);

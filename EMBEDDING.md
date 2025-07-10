@@ -1,6 +1,6 @@
 # Hardcover Book Widget - Embedding Guide
 
-This guide explains how to embed any Hardcover user's currently reading books on any website.
+This guide explains how to embed any Hardcover user's currently reading or last read books on any website.
 
 ## Quick Start
 
@@ -15,6 +15,13 @@ The simplest way to embed your books is to add a single line of HTML to your web
 ```
 
 That's it! Replace "your-username" with any Hardcover username to show their currently reading books.
+
+To show last read books instead, add `data-book-type="last-read"`:
+
+```html
+<div data-hardcover-widget data-api-url="http://localhost:8080" data-username="your-username" data-book-type="last-read"></div>
+<script src="http://localhost:8080/widget.js"></script>
+```
 
 ## Embedding Methods
 
@@ -39,6 +46,15 @@ For complete isolation from your site's styles:
     frameborder="0"
     style="border: none;">
 </iframe>
+
+<!-- For last read books -->
+<iframe 
+    src="http://localhost:8080/embed.html?username=your-username&type=last-read" 
+    width="100%" 
+    height="400"
+    frameborder="0"
+    style="border: none;">
+</iframe>
 ```
 
 ### Method 3: JavaScript API
@@ -55,6 +71,7 @@ For more control over initialization:
         {
             apiUrl: 'http://localhost:8080',
             username: 'your-username',
+            bookType: 'currently-reading', // or 'last-read'
             maxWidth: '600px',
             showPoweredBy: true
         }
@@ -71,6 +88,7 @@ You can customize the widget using data attributes:
     data-hardcover-widget
     data-api-url="http://localhost:8080"
     data-username="your-username"
+    data-book-type="currently-reading"
     data-max-width="600px"
     data-columns="auto-fill"
     data-min-column-width="100px"
@@ -85,6 +103,7 @@ You can customize the widget using data attributes:
 |--------|---------|-------------|
 | `data-api-url` | Required | Your Hardcover embed server URL |
 | `data-username` | Required | Hardcover username to display books for |
+| `data-book-type` | `currently-reading` | Book type: 'currently-reading' or 'last-read' |
 | `data-max-width` | `800px` | Maximum width of the widget |
 | `data-columns` | `auto-fill` | Grid columns (CSS grid value) |
 | `data-min-column-width` | `120px` | Minimum width for each book |
@@ -134,23 +153,49 @@ You can customize the widget using data attributes:
 You can have multiple widgets on the same page:
 
 ```html
-<!-- Featured books -->
+<!-- Currently reading books -->
 <div 
     data-hardcover-widget
     data-api-url="http://localhost:8080"
     data-username="alice"
+    data-book-type="currently-reading"
     data-max-width="400px"
     class="featured-books">
 </div>
 
-<!-- Sidebar books for different user -->
+<!-- Last read books for different user -->
 <div 
     data-hardcover-widget
     data-api-url="http://localhost:8080"
     data-username="bob"
+    data-book-type="last-read"
     data-max-width="200px"
     data-min-column-width="60px"
     class="sidebar-books">
+</div>
+
+<script src="http://localhost:8080/widget.js"></script>
+```
+
+### Showing Both Currently Reading and Last Read
+
+Display both types of books for the same user:
+
+```html
+<h2>Currently Reading</h2>
+<div 
+    data-hardcover-widget
+    data-api-url="http://localhost:8080"
+    data-username="your-username"
+    data-book-type="currently-reading">
+</div>
+
+<h2>Recently Finished</h2>
+<div 
+    data-hardcover-widget
+    data-api-url="http://localhost:8080"
+    data-username="your-username"
+    data-book-type="last-read">
 </div>
 
 <script src="http://localhost:8080/widget.js"></script>

@@ -109,6 +109,60 @@ func isValidUsername(username string) bool {
 	return true
 }
 
+func (s *Server) HandleUserLastRead(w http.ResponseWriter, r *http.Request) {
+	s.enableCORS(w, r)
+
+	if r.Method == "OPTIONS" {
+		w.WriteHeader(http.StatusOK)
+		return
+	}
+
+	if r.Method != "GET" {
+		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
+		return
+	}
+
+	// Extract username from URL path
+	// Expected format: /api/books/last-read/{username}
+	path := r.URL.Path
+	prefix := "/api/books/last-read/"
+	if !strings.HasPrefix(path, prefix) {
+		http.Error(w, "Invalid path", http.StatusBadRequest)
+		return
+	}
+
+	username := strings.TrimPrefix(path, prefix)
+	username = strings.TrimSuffix(username, "/")
+
+	// Validate username (alphanumeric, hyphens, underscores)
+	if username == "" || !isValidUsername(username) {
+		http.Error(w, "Invalid username", http.StatusBadRequest)
+		return
+	}
+
+	cacheKey := fmt.Sprintf("last_read_%s", username)
+
+	if cached, found := s.cache.Get(cacheKey); found {
+		log.Printf("Serving cached last read books for user: %s", username)
+		w.Header().Set("Content-Type", "application/json")
+		json.NewEncoder(w).Encode(cached)
+		return
+	}
+
+	log.Printf("Fetching last read books for user: %s", username)
+	books, err := s.client.GetUserLastReadBooksByUsername(username)
+	if err != nil {
+		log.Printf("Error fetching last read books for user %s: %v", username, err)
+		http.Error(w, "Failed to fetch books", http.StatusInternalServerError)
+		return
+	}
+
+	s.cache.Set(cacheKey, books)
+
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(books)
+}
+
 func (s *Server) HandleHealth(w http.ResponseWriter, r *http.Request) {
 	s.enableCORS(w, r)
 

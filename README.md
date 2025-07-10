@@ -1,15 +1,16 @@
 # Hardcover Book Embed
 
-An embeddable HTML component that displays your currently reading books from Hardcover, with a Go backend for API proxying and caching.
+An embeddable HTML component that displays currently reading or last read books from any Hardcover user, with a Go backend for API proxying and caching.
 
 ## Features
 
-- 📚 Displays currently reading books from Hardcover
+- 📚 Displays currently reading or last read books from any Hardcover user
 - 🚀 Go backend with caching to respect API rate limits
 - 🎨 Responsive, embeddable HTML component
 - 🔒 Secure API token handling (server-side only)
 - ⚡ 30-minute caching by default (configurable)
 - 🌐 CORS support for cross-domain embedding
+- 👥 Support for multiple users on the same page
 
 ## Quick Start
 
@@ -50,33 +51,46 @@ The server will start on `http://localhost:8080`.
 
 ### 4. Embed the Component
 
-You can embed the component in any website by including it in an iframe:
+You can embed the component in any website. See [EMBEDDING.md](EMBEDDING.md) for detailed instructions.
+
+Quick example:
 
 ```html
-<iframe 
-    src="http://localhost:8080/embed.html" 
-    width="600" 
-    height="400"
-    frameborder="0">
-</iframe>
+<!-- Currently reading books -->
+<div data-hardcover-widget data-api-url="http://localhost:8080" data-username="your-username"></div>
+
+<!-- Last read books -->
+<div data-hardcover-widget data-api-url="http://localhost:8080" data-username="your-username" data-book-type="last-read"></div>
+
+<script src="http://localhost:8080/widget.js"></script>
 ```
 
-Or use it directly:
+Or use the API directly:
 ```html
 <script>
-    fetch('http://localhost:8080/api/books/currently-reading')
+    // Currently reading books
+    fetch('http://localhost:8080/api/books/currently-reading/your-username')
         .then(response => response.json())
         .then(data => {
             console.log('Currently reading:', data.books);
+        });
+    
+    // Last read books
+    fetch('http://localhost:8080/api/books/last-read/your-username')
+        .then(response => response.json())
+        .then(data => {
+            console.log('Last read:', data.books);
         });
 </script>
 ```
 
 ## API Endpoints
 
-- `GET /api/books/currently-reading` - Returns currently reading books
+- `GET /api/books/currently-reading/:username` - Returns currently reading books for a user
+- `GET /api/books/last-read/:username` - Returns last read books for a user  
 - `GET /api/health` - Health check endpoint
 - `GET /embed.html` - Embeddable HTML component
+- `GET /widget.js` - JavaScript widget for embedding
 
 ## Configuration
 

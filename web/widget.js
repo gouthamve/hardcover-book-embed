@@ -6,6 +6,7 @@
     const defaultConfig = {
         apiUrl: 'http://localhost:8080',
         username: null,
+        bookType: 'currently-reading',
         maxWidth: '800px',
         columns: 'auto-fill',
         minColumnWidth: '120px',
@@ -182,7 +183,11 @@
             this.showLoading();
             
             try {
-                const response = await fetch(`${this.config.apiUrl}/api/books/currently-reading/${this.config.username}`);
+                const endpoint = this.config.bookType === 'last-read' 
+                    ? `/api/books/last-read/${this.config.username}`
+                    : `/api/books/currently-reading/${this.config.username}`;
+                
+                const response = await fetch(`${this.config.apiUrl}${endpoint}`);
                 
                 if (!response.ok) {
                     throw new Error(`HTTP ${response.status}`);
@@ -234,9 +239,12 @@
             let html = `<ul class="hw-books-grid">${booksHtml}</ul>`;
             
             if (this.config.showPoweredBy) {
+                const linkText = this.config.bookType === 'last-read' 
+                    ? 'Last read on Hardcover'
+                    : 'Currently reading on Hardcover';
                 html += `
                     <div class="hw-powered-by">
-                        <a href="https://hardcover.app/@${this.config.username}" target="_blank" rel="noopener">Currently reading on Hardcover</a>
+                        <a href="https://hardcover.app/@${this.config.username}" target="_blank" rel="noopener">${linkText}</a>
                     </div>
                 `;
             }
@@ -287,6 +295,7 @@
             
             if (element.dataset.apiUrl) config.apiUrl = element.dataset.apiUrl;
             if (element.dataset.username) config.username = element.dataset.username;
+            if (element.dataset.bookType) config.bookType = element.dataset.bookType;
             if (element.dataset.maxWidth) config.maxWidth = element.dataset.maxWidth;
             if (element.dataset.columns) config.columns = element.dataset.columns;
             if (element.dataset.minColumnWidth) config.minColumnWidth = element.dataset.minColumnWidth;

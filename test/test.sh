@@ -8,7 +8,8 @@ echo "======================================"
 # Check if username is provided
 if [ $# -eq 0 ]; then
     echo "Error: Username is required"
-    echo "Usage: ./test.sh <username>"
+    echo "Usage: ./test.sh <username> [book-type]"
+    echo "  book-type: currently-reading (default) or last-read"
     exit 1
 fi
 
@@ -37,7 +38,9 @@ fi
 echo "Running Hardcover API test for user: $USERNAME"
 echo ""
 
-./test_hardcover "$USERNAME"
+# Test with optional book type parameter (defaults to currently-reading)
+BOOK_TYPE=${2:-"currently-reading"}
+./test_hardcover "$USERNAME" "$BOOK_TYPE"
 
 # Clean up
 rm -f test_hardcover

@@ -41,6 +41,7 @@ func main() {
 	server := api.NewServer(client, memCache, allowedOrigins)
 
 	http.HandleFunc("/api/books/currently-reading/", server.HandleUserCurrentlyReading)
+	http.HandleFunc("/api/books/last-read/", server.HandleUserLastRead)
 	http.HandleFunc("/api/health", server.HandleHealth)
 
 	http.HandleFunc("/test-widget.html", func(w http.ResponseWriter, r *http.Request) {

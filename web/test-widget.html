@@ -84,6 +84,8 @@
     <h1>Hardcover Widget Demo</h1>
     <div class="notice">
         <strong>Note:</strong> Username is now required! Replace "gouthamve" with any Hardcover username to see their books.
+        <br>
+        <strong>New:</strong> You can now show "last-read" books by adding data-book-type="last-read"!
     </div>
     <p>This page demonstrates various ways to embed the Hardcover currently reading widget.</p>
 
@@ -214,6 +216,47 @@
             frameborder="0"
             style="border: 1px solid #e5e7eb; border-radius: 6px;">
         </iframe>
+    </div>
+
+    <!-- Last Read Books -->
+    <div class="demo-section">
+        <h2>9. Last Read Books</h2>
+        <p>Display recently finished books:</p>
+        <pre><code>&lt;div data-hardcover-widget 
+     data-api-url="http://localhost:8080"
+     data-username="your-username"
+     data-book-type="last-read"&gt;&lt;/div&gt;</code></pre>
+        
+        <div 
+            data-hardcover-widget
+            data-api-url="http://localhost:8080"
+            data-username="gouthamve"
+            data-book-type="last-read">
+        </div>
+    </div>
+
+    <!-- Both Types Together -->
+    <div class="demo-section">
+        <h2>10. Both Currently Reading and Last Read</h2>
+        <p>Show both types of books for the same user:</p>
+        
+        <h3>Currently Reading</h3>
+        <div 
+            data-hardcover-widget
+            data-api-url="http://localhost:8080"
+            data-username="gouthamve"
+            data-book-type="currently-reading"
+            data-max-width="500px">
+        </div>
+        
+        <h3>Recently Finished</h3>
+        <div 
+            data-hardcover-widget
+            data-api-url="http://localhost:8080"
+            data-username="gouthamve"
+            data-book-type="last-read"
+            data-max-width="500px">
+        </div>
     </div>
 
     <!-- Load widget script at the end -->
