@@ -1,0 +1,266 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Currently Reading - Hardcover</title>
+    <style>
+        :root {
+            --primary-color: #2563eb;
+            --text-color: #374151;
+            --text-light: #6b7280;
+            --border-color: #e5e7eb;
+            --bg-color: #ffffff;
+            --shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1);
+            --radius: 8px;
+        }
+
+        .hardcover-embed {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            max-width: 600px;
+            margin: 0 auto;
+            background: var(--bg-color);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius);
+            padding: 1.5rem;
+            box-shadow: var(--shadow);
+        }
+
+        .embed-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 1.5rem;
+            padding-bottom: 1rem;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .embed-title {
+            font-size: 1.25rem;
+            font-weight: 600;
+            color: var(--text-color);
+            margin: 0;
+        }
+
+        .embed-count {
+            background: var(--primary-color);
+            color: white;
+            padding: 0.25rem 0.5rem;
+            border-radius: 12px;
+            font-size: 0.875rem;
+            margin-left: auto;
+        }
+
+        .books-list {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        .book-item {
+            display: flex;
+            gap: 1rem;
+            padding: 1rem 0;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .book-item:last-child {
+            border-bottom: none;
+        }
+
+        .book-cover {
+            flex-shrink: 0;
+            width: 60px;
+            height: 90px;
+            background: var(--border-color);
+            border-radius: 4px;
+            overflow: hidden;
+        }
+
+        .book-cover img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .book-details {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .book-title {
+            font-weight: 600;
+            color: var(--text-color);
+            margin: 0 0 0.5rem 0;
+            font-size: 1rem;
+            line-height: 1.4;
+        }
+
+        .book-authors {
+            color: var(--text-light);
+            font-size: 0.875rem;
+            margin: 0;
+        }
+
+        .book-rating {
+            margin-top: 0.5rem;
+            font-size: 0.875rem;
+        }
+
+        .stars {
+            color: #fbbf24;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 2rem;
+            color: var(--text-light);
+        }
+
+        .error {
+            text-align: center;
+            padding: 2rem;
+            color: #dc2626;
+            background: #fef2f2;
+            border-radius: var(--radius);
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 2rem;
+            color: var(--text-light);
+        }
+
+        .powered-by {
+            margin-top: 1rem;
+            padding-top: 1rem;
+            border-top: 1px solid var(--border-color);
+            text-align: center;
+            font-size: 0.75rem;
+            color: var(--text-light);
+        }
+
+        .powered-by a {
+            color: var(--primary-color);
+            text-decoration: none;
+        }
+
+        @media (max-width: 480px) {
+            .hardcover-embed {
+                padding: 1rem;
+            }
+            
+            .book-item {
+                gap: 0.75rem;
+            }
+            
+            .book-cover {
+                width: 50px;
+                height: 75px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="hardcover-embed" id="hardcover-widget">
+        <div class="embed-header">
+            <h2 class="embed-title">Currently Reading</h2>
+            <span class="embed-count" id="book-count" style="display: none;">0</span>
+        </div>
+        
+        <div class="loading" id="loading">
+            Loading books...
+        </div>
+        
+        <ul class="books-list" id="books-list" style="display: none;"></ul>
+        
+        <div class="powered-by">
+            Powered by <a href="https://hardcover.app" target="_blank" rel="noopener">Hardcover</a>
+        </div>
+    </div>
+
+    <script>
+        (function() {
+            const API_BASE = window.location.origin;
+            const REFRESH_INTERVAL = 30 * 60 * 1000; // 30 minutes
+
+            const elements = {
+                loading: document.getElementById('loading'),
+                booksList: document.getElementById('books-list'),
+                bookCount: document.getElementById('book-count')
+            };
+
+            function renderStars(rating) {
+                if (!rating) return '';
+                return '<span class="stars">' + '★'.repeat(rating) + '</span>';
+            }
+
+            function renderBook(book) {
+                const cover = book.book.image && book.book.image.url
+                    ? `<img src="${book.book.image.url}" alt="${book.book.title} cover">`
+                    : '';
+
+                const rating = book.rating 
+                    ? `<div class="book-rating">Rating: ${renderStars(book.rating)}</div>`
+                    : '';
+
+                return `
+                    <li class="book-item">
+                        <div class="book-cover">${cover}</div>
+                        <div class="book-details">
+                            <h3 class="book-title">${book.book.title}</h3>
+                            ${rating}
+                        </div>
+                    </li>
+                `;
+            }
+
+            function showError(message) {
+                elements.loading.style.display = 'none';
+                elements.booksList.style.display = 'none';
+                elements.booksList.innerHTML = `<div class="error">${message}</div>`;
+                elements.booksList.style.display = 'block';
+            }
+
+            function showEmptyState() {
+                elements.loading.style.display = 'none';
+                elements.booksList.innerHTML = `<div class="empty-state">No books currently being read</div>`;
+                elements.booksList.style.display = 'block';
+            }
+
+            async function fetchBooks() {
+                try {
+                    const response = await fetch(`${API_BASE}/api/books/currently-reading`);
+                    
+                    if (!response.ok) {
+                        throw new Error(`HTTP ${response.status}`);
+                    }
+                    
+                    const data = await response.json();
+                    
+                    elements.loading.style.display = 'none';
+                    
+                    if (data.count === 0) {
+                        showEmptyState();
+                        return;
+                    }
+                    
+                    elements.booksList.innerHTML = data.books.map(renderBook).join('');
+                    elements.booksList.style.display = 'block';
+                    elements.bookCount.textContent = data.count;
+                    elements.bookCount.style.display = 'inline';
+                    
+                } catch (error) {
+                    console.error('Failed to fetch books:', error);
+                    showError('Failed to load books. Please try again later.');
+                }
+            }
+
+            // Initial load
+            fetchBooks();
+            
+            // Refresh periodically
+            setInterval(fetchBooks, REFRESH_INTERVAL);
+        })();
+    </script>
+</body>
+</html>
