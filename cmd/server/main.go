@@ -43,8 +43,18 @@ func main() {
 	http.HandleFunc("/api/books/currently-reading", server.HandleCurrentlyReading)
 	http.HandleFunc("/api/health", server.HandleHealth)
 
+	http.HandleFunc("/test-widget.html", func(w http.ResponseWriter, r *http.Request) {
+		http.ServeFile(w, r, "./web/test-widget.html")
+	})
+
 	http.HandleFunc("/embed.html", func(w http.ResponseWriter, r *http.Request) {
 		http.ServeFile(w, r, "./web/embed.html")
+	})
+
+	http.HandleFunc("/widget.js", func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Content-Type", "application/javascript")
+		w.Header().Set("Access-Control-Allow-Origin", "*")
+		http.ServeFile(w, r, "./web/widget.js")
 	})
 
 	log.Printf("Server starting on port %s", port)

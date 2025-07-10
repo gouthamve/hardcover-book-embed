@@ -9,6 +9,7 @@ type Image struct {
 type Book struct {
 	ID    int    `json:"id"`
 	Title string `json:"title"`
+	Slug  string `json:"slug"`
 	Image *Image `json:"image,omitempty"`
 }
 

@@ -50,6 +50,7 @@ func main() {
 			}
 		}
 
+		fmt.Printf("   URL: https://hardcover.app/books/%s\n", userBook.Book.Slug)
 		fmt.Printf("   Updated: %s\n", userBook.UpdatedAt.Format("2006-01-02 15:04:05"))
 	}
 

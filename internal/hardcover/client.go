@@ -39,6 +39,7 @@ func (c *Client) GetCurrentlyReadingBooks() (*CurrentlyReadingResponse, error) {
 					image {
 						url
 					}
+					slug
 				}
 			}
 		}

@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hardcover Widget Test</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f9fafb;
+        }
+        
+        h1, h2 {
+            color: #1f2937;
+        }
+        
+        .demo-section {
+            background: white;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            border-radius: 8px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+        }
+        
+        .demo-section h2 {
+            margin-top: 0;
+            border-bottom: 2px solid #e5e7eb;
+            padding-bottom: 0.5rem;
+        }
+        
+        code {
+            background: #f3f4f6;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-size: 0.9em;
+        }
+        
+        pre {
+            background: #1f2937;
+            color: #f9fafb;
+            padding: 1rem;
+            border-radius: 6px;
+            overflow-x: auto;
+        }
+        
+        .sidebar-demo {
+            max-width: 300px;
+            padding: 1rem;
+            background: #f9fafb;
+            border: 1px solid #e5e7eb;
+            border-radius: 6px;
+        }
+        
+        .custom-styled {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 2rem;
+            border-radius: 12px;
+        }
+        
+        .custom-styled .hardcover-widget {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 8px;
+        }
+        
+        .custom-styled .hw-book-cover {
+            border-radius: 12px !important;
+        }
+    </style>
+</head>
+<body>
+    <h1>Hardcover Widget Demo</h1>
+    <p>This page demonstrates various ways to embed the Hardcover currently reading widget.</p>
+
+    <!-- Default Widget -->
+    <div class="demo-section">
+        <h2>1. Default Widget</h2>
+        <p>Simple embed with default settings:</p>
+        <pre><code>&lt;div data-hardcover-widget data-api-url="http://localhost:8080"&gt;&lt;/div&gt;</code></pre>
+        
+        <div data-hardcover-widget data-api-url="http://localhost:8080"></div>
+    </div>
+
+    <!-- Customized Size -->
+    <div class="demo-section">
+        <h2>2. Customized Size</h2>
+        <p>Widget with custom width and column settings:</p>
+        <pre><code>&lt;div data-hardcover-widget 
+     data-api-url="http://localhost:8080"
+     data-max-width="500px"
+     data-min-column-width="100px"
+     data-gap="0.5rem"&gt;&lt;/div&gt;</code></pre>
+        
+        <div 
+            data-hardcover-widget 
+            data-api-url="http://localhost:8080"
+            data-max-width="500px"
+            data-min-column-width="100px"
+            data-gap="0.5rem">
+        </div>
+    </div>
+
+    <!-- Sidebar Style -->
+    <div class="demo-section">
+        <h2>3. Sidebar Style</h2>
+        <p>Compact widget suitable for sidebars:</p>
+        
+        <div class="sidebar-demo">
+            <h3>Currently Reading</h3>
+            <div 
+                data-hardcover-widget
+                data-api-url="http://localhost:8080"
+                data-max-width="100%"
+                data-min-column-width="80px"
+                data-gap="0.5rem">
+            </div>
+        </div>
+    </div>
+
+    <!-- Fixed Columns -->
+    <div class="demo-section">
+        <h2>4. Fixed Columns</h2>
+        <p>Widget with exactly 4 columns:</p>
+        <pre><code>&lt;div data-hardcover-widget 
+     data-api-url="http://localhost:8080"
+     data-columns="4"&gt;&lt;/div&gt;</code></pre>
+        
+        <div 
+            data-hardcover-widget
+            data-api-url="http://localhost:8080"
+            data-columns="4">
+        </div>
+    </div>
+
+    <!-- Without Powered By -->
+    <div class="demo-section">
+        <h2>5. Without "Powered by" Link</h2>
+        <p>Hide the attribution link:</p>
+        <pre><code>&lt;div data-hardcover-widget 
+     data-api-url="http://localhost:8080"
+     data-show-powered-by="false"&gt;&lt;/div&gt;</code></pre>
+        
+        <div 
+            data-hardcover-widget
+            data-api-url="http://localhost:8080"
+            data-show-powered-by="false"
+            data-max-width="400px">
+        </div>
+    </div>
+
+    <!-- Custom Styled -->
+    <div class="demo-section custom-styled">
+        <h2 style="color: white;">6. Custom Styled</h2>
+        <p style="color: rgba(255,255,255,0.9);">Widget with custom CSS styling:</p>
+        
+        <div 
+            data-hardcover-widget
+            data-api-url="http://localhost:8080"
+            data-max-width="600px">
+        </div>
+    </div>
+
+    <!-- JavaScript API -->
+    <div class="demo-section">
+        <h2>7. JavaScript API</h2>
+        <p>Programmatically initialized widget:</p>
+        <pre><code>const widget = new HardcoverWidget(
+    document.getElementById('js-widget'),
+    {
+        apiUrl: 'http://localhost:8080',
+        maxWidth: '400px',
+        showPoweredBy: true
+    }
+);</code></pre>
+        
+        <div id="js-widget"></div>
+    </div>
+
+    <!-- Iframe Method -->
+    <div class="demo-section">
+        <h2>8. Iframe Method</h2>
+        <p>Completely isolated iframe embed:</p>
+        <pre><code>&lt;iframe src="http://localhost:8080/embed.html" 
+        width="100%" height="300" frameborder="0"&gt;&lt;/iframe&gt;</code></pre>
+        
+        <iframe 
+            src="http://localhost:8080/embed.html" 
+            width="100%" 
+            height="300" 
+            frameborder="0"
+            style="border: 1px solid #e5e7eb; border-radius: 6px;">
+        </iframe>
+    </div>
+
+    <!-- Load widget script at the end -->
+    <script src="http://localhost:8080/widget.js"></script>
+    
+    <!-- Manual initialization example -->
+    <script>
+        // Example of manual initialization
+        document.addEventListener('DOMContentLoaded', function() {
+            const widget = new HardcoverWidget(
+                document.getElementById('js-widget'),
+                {
+                    apiUrl: 'http://localhost:8080',
+                    maxWidth: '400px',
+                    minColumnWidth: '90px',
+                    gap: '0.75rem',
+                    showPoweredBy: true
+                }
+            );
+        });
+        
+        // Listen for widget events
+        document.addEventListener('hardcover:loaded', function(e) {
+            console.log('Hardcover widget loaded with', e.detail.count, 'books');
+        });
+        
+        document.addEventListener('hardcover:error', function(e) {
+            console.error('Hardcover widget error:', e.detail.error);
+        });
+    </script>
+</body>
+</html>

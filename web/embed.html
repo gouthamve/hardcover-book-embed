@@ -13,106 +13,92 @@
             --bg-color: #ffffff;
             --shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1);
             --radius: 8px;
+            --transition: all 0.3s ease;
+        }
+
+        * {
+            box-sizing: border-box;
         }
 
         .hardcover-embed {
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-            max-width: 600px;
+            max-width: 800px;
             margin: 0 auto;
             background: var(--bg-color);
-            border: 1px solid var(--border-color);
             border-radius: var(--radius);
-            padding: 1.5rem;
-            box-shadow: var(--shadow);
+            padding: 1rem;
         }
 
-        .embed-header {
-            display: flex;
-            align-items: center;
-            margin-bottom: 1.5rem;
-            padding-bottom: 1rem;
-            border-bottom: 1px solid var(--border-color);
-        }
-
-        .embed-title {
-            font-size: 1.25rem;
-            font-weight: 600;
-            color: var(--text-color);
-            margin: 0;
-        }
-
-        .embed-count {
-            background: var(--primary-color);
-            color: white;
-            padding: 0.25rem 0.5rem;
-            border-radius: 12px;
-            font-size: 0.875rem;
-            margin-left: auto;
-        }
-
-        .books-list {
-            list-style: none;
+        .books-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+            gap: 1rem;
             padding: 0;
             margin: 0;
+            list-style: none;
         }
 
         .book-item {
-            display: flex;
-            gap: 1rem;
-            padding: 1rem 0;
-            border-bottom: 1px solid var(--border-color);
+            position: relative;
+            transition: var(--transition);
+        }
+        
+        .book-link {
+            display: block;
+            text-decoration: none;
+            color: inherit;
         }
 
-        .book-item:last-child {
-            border-bottom: none;
+        .book-item:hover {
+            transform: translateY(-4px);
         }
 
         .book-cover {
-            flex-shrink: 0;
-            width: 60px;
-            height: 90px;
+            position: relative;
+            width: 100%;
+            padding-bottom: 150%; /* 2:3 aspect ratio */
             background: var(--border-color);
-            border-radius: 4px;
+            border-radius: 6px;
             overflow: hidden;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+            transition: var(--transition);
+        }
+
+        .book-item:hover .book-cover {
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.15);
         }
 
         .book-cover img {
+            position: absolute;
+            top: 0;
+            left: 0;
             width: 100%;
             height: 100%;
             object-fit: cover;
         }
 
-        .book-details {
-            flex: 1;
-            min-width: 0;
-        }
-
-        .book-title {
+        .book-title-overlay {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: linear-gradient(to top, rgba(0, 0, 0, 0.9) 0%, rgba(0, 0, 0, 0.7) 50%, transparent 100%);
+            color: white;
+            padding: 2rem 0.75rem 0.75rem;
+            opacity: 0;
+            transition: var(--transition);
+            font-size: 0.875rem;
             font-weight: 600;
-            color: var(--text-color);
-            margin: 0 0 0.5rem 0;
-            font-size: 1rem;
-            line-height: 1.4;
+            line-height: 1.3;
         }
 
-        .book-authors {
-            color: var(--text-light);
-            font-size: 0.875rem;
-            margin: 0;
-        }
-
-        .book-rating {
-            margin-top: 0.5rem;
-            font-size: 0.875rem;
-        }
-
-        .stars {
-            color: #fbbf24;
+        .book-item:hover .book-title-overlay {
+            opacity: 1;
         }
 
         .loading {
             text-align: center;
-            padding: 2rem;
+            padding: 3rem;
             color: var(--text-light);
         }
 
@@ -122,18 +108,17 @@
             color: #dc2626;
             background: #fef2f2;
             border-radius: var(--radius);
+            margin: 1rem;
         }
 
         .empty-state {
             text-align: center;
-            padding: 2rem;
+            padding: 3rem;
             color: var(--text-light);
         }
 
         .powered-by {
-            margin-top: 1rem;
-            padding-top: 1rem;
-            border-top: 1px solid var(--border-color);
+            margin-top: 1.5rem;
             text-align: center;
             font-size: 0.75rem;
             color: var(--text-light);
@@ -142,39 +127,43 @@
         .powered-by a {
             color: var(--primary-color);
             text-decoration: none;
+            transition: var(--transition);
         }
 
-        @media (max-width: 480px) {
-            .hardcover-embed {
-                padding: 1rem;
-            }
-            
-            .book-item {
+        .powered-by a:hover {
+            text-decoration: underline;
+        }
+
+        @media (max-width: 600px) {
+            .books-grid {
+                grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
                 gap: 0.75rem;
             }
             
-            .book-cover {
-                width: 50px;
-                height: 75px;
+            .book-title-overlay {
+                font-size: 0.75rem;
+                padding: 1.5rem 0.5rem 0.5rem;
+            }
+        }
+
+        @media (max-width: 400px) {
+            .books-grid {
+                grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
+                gap: 0.5rem;
             }
         }
     </style>
 </head>
 <body>
     <div class="hardcover-embed" id="hardcover-widget">
-        <div class="embed-header">
-            <h2 class="embed-title">Currently Reading</h2>
-            <span class="embed-count" id="book-count" style="display: none;">0</span>
-        </div>
-        
         <div class="loading" id="loading">
             Loading books...
         </div>
         
-        <ul class="books-list" id="books-list" style="display: none;"></ul>
+        <ul class="books-grid" id="books-grid" style="display: none;"></ul>
         
         <div class="powered-by">
-            Powered by <a href="https://hardcover.app" target="_blank" rel="noopener">Hardcover</a>
+            <a href="https://hardcover.app" target="_blank" rel="noopener">Currently reading on Hardcover</a>
         </div>
     </div>
 
@@ -185,46 +174,39 @@
 
             const elements = {
                 loading: document.getElementById('loading'),
-                booksList: document.getElementById('books-list'),
-                bookCount: document.getElementById('book-count')
+                booksGrid: document.getElementById('books-grid')
             };
-
-            function renderStars(rating) {
-                if (!rating) return '';
-                return '<span class="stars">' + '★'.repeat(rating) + '</span>';
-            }
 
             function renderBook(book) {
                 const cover = book.book.image && book.book.image.url
-                    ? `<img src="${book.book.image.url}" alt="${book.book.title} cover">`
+                    ? `<img src="${book.book.image.url}" alt="${book.book.title} cover" loading="lazy">`
                     : '';
-
-                const rating = book.rating 
-                    ? `<div class="book-rating">Rating: ${renderStars(book.rating)}</div>`
-                    : '';
+                
+                const bookUrl = `https://hardcover.app/books/${book.book.slug}`;
 
                 return `
                     <li class="book-item">
-                        <div class="book-cover">${cover}</div>
-                        <div class="book-details">
-                            <h3 class="book-title">${book.book.title}</h3>
-                            ${rating}
-                        </div>
+                        <a href="${bookUrl}" target="_blank" rel="noopener" class="book-link">
+                            <div class="book-cover">
+                                ${cover}
+                                <div class="book-title-overlay">${book.book.title}</div>
+                            </div>
+                        </a>
                     </li>
                 `;
             }
 
             function showError(message) {
                 elements.loading.style.display = 'none';
-                elements.booksList.style.display = 'none';
-                elements.booksList.innerHTML = `<div class="error">${message}</div>`;
-                elements.booksList.style.display = 'block';
+                elements.booksGrid.style.display = 'none';
+                elements.booksGrid.innerHTML = `<div class="error">${message}</div>`;
+                elements.booksGrid.style.display = 'block';
             }
 
             function showEmptyState() {
                 elements.loading.style.display = 'none';
-                elements.booksList.innerHTML = `<div class="empty-state">No books currently being read</div>`;
-                elements.booksList.style.display = 'block';
+                elements.booksGrid.innerHTML = `<div class="empty-state">No books currently being read</div>`;
+                elements.booksGrid.style.display = 'block';
             }
 
             async function fetchBooks() {
@@ -244,10 +226,8 @@
                         return;
                     }
                     
-                    elements.booksList.innerHTML = data.books.map(renderBook).join('');
-                    elements.booksList.style.display = 'block';
-                    elements.bookCount.textContent = data.count;
-                    elements.bookCount.style.display = 'inline';
+                    elements.booksGrid.innerHTML = data.books.map(renderBook).join('');
+                    elements.booksGrid.style.display = 'grid';
                     
                 } catch (error) {
                     console.error('Failed to fetch books:', error);
