@@ -9,7 +9,7 @@ import (
 )
 
 type CacheItem struct {
-	Data      *hardcover.CurrentlyReadingResponse
+	Data      *hardcover.UserBooksResponse
 	ExpiresAt time.Time
 }
 
@@ -29,7 +29,7 @@ func NewMemoryCache(ttl time.Duration) *MemoryCache {
 	return cache
 }
 
-func (c *MemoryCache) Get(key string) (*hardcover.CurrentlyReadingResponse, bool) {
+func (c *MemoryCache) Get(key string) (*hardcover.UserBooksResponse, bool) {
 	c.mu.RLock()
 	defer c.mu.RUnlock()
 
@@ -45,7 +45,7 @@ func (c *MemoryCache) Get(key string) (*hardcover.CurrentlyReadingResponse, bool
 	return item.Data, true
 }
 
-func (c *MemoryCache) Set(key string, data *hardcover.CurrentlyReadingResponse) {
+func (c *MemoryCache) Set(key string, data *hardcover.UserBooksResponse) {
 	c.mu.Lock()
 	defer c.mu.Unlock()
 

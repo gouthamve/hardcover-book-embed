@@ -25,16 +25,16 @@ func main() {
 	if len(os.Args) >= 3 {
 		bookType = os.Args[2]
 	}
-	
+
 	client := hardcover.NewClient(apiToken)
 
 	fmt.Printf("Fetching %s books for user: %s\n", bookType, username)
 	fmt.Println("API Token:", apiToken[:10]+"...")
 	fmt.Println()
 
-	var books *hardcover.CurrentlyReadingResponse
+	var books *hardcover.UserBooksResponse
 	var err error
-	
+
 	if bookType == "last-read" {
 		books, err = client.GetUserLastReadBooksByUsername(username)
 	} else {
@@ -73,7 +73,7 @@ func main() {
 
 		fmt.Printf("   URL: https://hardcover.app/books/%s\n", userBook.Book.Slug)
 		fmt.Printf("   Updated: %s\n", userBook.UpdatedAt.Format("2006-01-02 15:04:05"))
-		
+
 		if bookType == "last-read" && userBook.LastReadDate != nil && !userBook.LastReadDate.IsZero() {
 			fmt.Printf("   Last Read: %s\n", userBook.LastReadDate.Format("2006-01-02"))
 		}

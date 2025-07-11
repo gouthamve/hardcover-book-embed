@@ -7,9 +7,9 @@ import (
 	"fmt"
 	"net/http"
 	"time"
-	
-	"golang.org/x/time/rate"
+
 	"github.com/gouthamve/hardcover-book-embed/internal/metrics"
+	"golang.org/x/time/rate"
 )
 
 const (
@@ -17,19 +17,32 @@ const (
 	UserAgent       = "hardcover-book-embed/1.0"
 )
 
-type Client struct {
+// Client is the interface for interacting with the Hardcover API
+type Client interface {
+	GetUserBooksByUsername(username string) (*UserBooksResponse, error)
+	GetUserLastReadBooksByUsername(username string) (*UserBooksResponse, error)
+}
+
+// HTTPClient interface allows for mocking HTTP requests
+type HTTPClient interface {
+	Do(req *http.Request) (*http.Response, error)
+}
+
+// client is the concrete implementation of the Client interface
+type client struct {
 	apiToken    string
-	httpClient  *http.Client
+	httpClient  HTTPClient
 	rateLimiter *rate.Limiter
 }
 
-func NewClient(apiToken string) *Client {
+// NewClient creates a new Hardcover API client
+func NewClient(apiToken string) Client {
 	// Hardcover API allows 60 requests per minute
 	// We'll be conservative and limit to 50 requests per minute (0.83 per second)
 	// with a burst of 5 to handle short spikes
 	limiter := rate.NewLimiter(rate.Limit(0.83), 5)
-	
-	return &Client{
+
+	return &client{
 		apiToken: apiToken,
 		httpClient: &http.Client{
 			Timeout: 30 * time.Second,
@@ -38,7 +51,18 @@ func NewClient(apiToken string) *Client {
 	}
 }
 
-func (c *Client) GetUserBooksByUsername(username string) (*CurrentlyReadingResponse, error) {
+// NewClientWithHTTPClient creates a new Hardcover API client with a custom HTTP client
+func NewClientWithHTTPClient(apiToken string, httpClient HTTPClient) Client {
+	limiter := rate.NewLimiter(rate.Limit(0.83), 5)
+	
+	return &client{
+		apiToken:    apiToken,
+		httpClient:  httpClient,
+		rateLimiter: limiter,
+	}
+}
+
+func (c *client) GetUserBooksByUsername(username string) (*UserBooksResponse, error) {
 	// Wait for rate limiter
 	ctx := context.Background()
 	waitStart := time.Now()
@@ -49,7 +73,7 @@ func (c *Client) GetUserBooksByUsername(username string) (*CurrentlyReadingRespo
 	if waitDuration > 0.001 { // Only record if we actually waited
 		metrics.RateLimitWaitDuration.WithLabelValues("currently-reading").Observe(waitDuration)
 	}
-	
+
 	query := fmt.Sprintf(`{
 		user_books(
 			where: {user: {username: {_eq: "%s"}}, status_id: {_eq: 2}},
@@ -92,7 +116,7 @@ func (c *Client) GetUserBooksByUsername(username string) (*CurrentlyReadingRespo
 	resp, err := c.httpClient.Do(req)
 	duration := time.Since(start).Seconds()
 	metrics.HardcoverAPIRequestDuration.WithLabelValues("currently-reading", username).Observe(duration)
-	
+
 	if err != nil {
 		metrics.HardcoverAPIRequestsTotal.WithLabelValues("currently-reading", "error", username).Inc()
 		return nil, fmt.Errorf("failed to execute request: %w", err)
@@ -103,10 +127,10 @@ func (c *Client) GetUserBooksByUsername(username string) (*CurrentlyReadingRespo
 		metrics.HardcoverAPIRequestsTotal.WithLabelValues("currently-reading", fmt.Sprintf("%d", resp.StatusCode), username).Inc()
 		return nil, fmt.Errorf("API request failed with status %d", resp.StatusCode)
 	}
-	
+
 	metrics.HardcoverAPIRequestsTotal.WithLabelValues("currently-reading", "200", username).Inc()
 
-	var graphqlResp UserBooksResponse
+	var graphqlResp UserBooksAPIResponse
 	if err := json.NewDecoder(resp.Body).Decode(&graphqlResp); err != nil {
 		return nil, fmt.Errorf("failed to decode response: %w", err)
 	}
@@ -127,14 +151,14 @@ func (c *Client) GetUserBooksByUsername(username string) (*CurrentlyReadingRespo
 		}
 	}
 
-	return &CurrentlyReadingResponse{
+	return &UserBooksResponse{
 		Books:     books,
 		Count:     len(books),
 		UpdatedAt: time.Now(),
 	}, nil
 }
 
-func (c *Client) GetUserLastReadBooksByUsername(username string) (*CurrentlyReadingResponse, error) {
+func (c *client) GetUserLastReadBooksByUsername(username string) (*UserBooksResponse, error) {
 	// Wait for rate limiter
 	ctx := context.Background()
 	waitStart := time.Now()
@@ -145,7 +169,7 @@ func (c *Client) GetUserLastReadBooksByUsername(username string) (*CurrentlyRead
 	if waitDuration > 0.001 { // Only record if we actually waited
 		metrics.RateLimitWaitDuration.WithLabelValues("last-read").Observe(waitDuration)
 	}
-	
+
 	query := fmt.Sprintf(`{
 		user_books(
 			where: {user: {username: {_eq: "%s"}}, status_id: {_eq: 3}},
@@ -189,7 +213,7 @@ func (c *Client) GetUserLastReadBooksByUsername(username string) (*CurrentlyRead
 	resp, err := c.httpClient.Do(req)
 	duration := time.Since(start).Seconds()
 	metrics.HardcoverAPIRequestDuration.WithLabelValues("last-read", username).Observe(duration)
-	
+
 	if err != nil {
 		metrics.HardcoverAPIRequestsTotal.WithLabelValues("last-read", "error", username).Inc()
 		return nil, fmt.Errorf("failed to execute request: %w", err)
@@ -200,10 +224,10 @@ func (c *Client) GetUserLastReadBooksByUsername(username string) (*CurrentlyRead
 		metrics.HardcoverAPIRequestsTotal.WithLabelValues("last-read", fmt.Sprintf("%d", resp.StatusCode), username).Inc()
 		return nil, fmt.Errorf("API request failed with status %d", resp.StatusCode)
 	}
-	
+
 	metrics.HardcoverAPIRequestsTotal.WithLabelValues("last-read", "200", username).Inc()
 
-	var graphqlResp UserBooksResponse
+	var graphqlResp UserBooksAPIResponse
 	if err := json.NewDecoder(resp.Body).Decode(&graphqlResp); err != nil {
 		return nil, fmt.Errorf("failed to decode response: %w", err)
 	}
@@ -224,7 +248,7 @@ func (c *Client) GetUserLastReadBooksByUsername(username string) (*CurrentlyRead
 		}
 	}
 
-	return &CurrentlyReadingResponse{
+	return &UserBooksResponse{
 		Books:     books,
 		Count:     len(books),
 		UpdatedAt: time.Now(),

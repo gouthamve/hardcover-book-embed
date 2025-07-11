@@ -14,12 +14,12 @@ import (
 )
 
 type Server struct {
-	client         *hardcover.Client
+	client         hardcover.Client
 	cache          *cache.MemoryCache
 	allowedOrigins string
 }
 
-func NewServer(client *hardcover.Client, cache *cache.MemoryCache, allowedOrigins string) *Server {
+func NewServer(client hardcover.Client, cache *cache.MemoryCache, allowedOrigins string) *Server {
 	return &Server{
 		client:         client,
 		cache:          cache,

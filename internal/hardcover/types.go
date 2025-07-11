@@ -17,14 +17,14 @@ func (d *Date) UnmarshalJSON(b []byte) error {
 		d.Time = time.Time{}
 		return nil
 	}
-	
+
 	// Try parsing as date-only format first
 	t, err := time.Parse("2006-01-02", s)
 	if err == nil {
 		d.Time = t
 		return nil
 	}
-	
+
 	// Fall back to full timestamp format
 	t, err = time.Parse(time.RFC3339, s)
 	if err != nil {
@@ -56,7 +56,7 @@ type UserBook struct {
 	LastReadDate *Date     `json:"last_read_date,omitempty"`
 }
 
-type UserBooksResponse struct {
+type UserBooksAPIResponse struct {
 	Data struct {
 		UserBooks []UserBook `json:"user_books"`
 	} `json:"data"`
@@ -65,7 +65,7 @@ type UserBooksResponse struct {
 	} `json:"errors,omitempty"`
 }
 
-type CurrentlyReadingResponse struct {
+type UserBooksResponse struct {
 	Books     []UserBook `json:"books"`
 	Count     int        `json:"count"`
 	UpdatedAt time.Time  `json:"updated_at"`

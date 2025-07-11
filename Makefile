@@ -33,18 +33,18 @@ dev:
 
 # Run tests
 test:
-	@echo "Running API tests..."
+	@echo "Running Go tests..."
+	$(GO) test -v ./...
+
+# Run API integration tests (requires running server)
+test-api:
+	@echo "Running API integration tests..."
 	@if [ -z "$(USERNAME)" ]; then \
 		echo "Error: USERNAME is required"; \
-		echo "Usage: make test USERNAME=your-username"; \
+		echo "Usage: make test-api USERNAME=your-username"; \
 		exit 1; \
 	fi
 	@cd test && ./test.sh $(USERNAME)
-
-# Run Go tests
-test-go:
-	@echo "Running Go tests..."
-	$(GO) test -v ./...
 
 # Tidy dependencies
 tidy:
@@ -121,8 +121,8 @@ help:
 	@echo "  make build       - Build the application"
 	@echo "  make run         - Build and run the application"
 	@echo "  make dev         - Run in development mode with auto-reload"
-	@echo "  make test        - Run API tests"
-	@echo "  make test-go     - Run Go unit tests"
+	@echo "  make test        - Run Go unit tests"
+	@echo "  make test-api    - Run API integration tests (requires USERNAME)"
 	@echo "  make clean       - Remove build artifacts"
 	@echo "  make fmt         - Format code"
 	@echo "  make lint        - Run linter"
