@@ -9,7 +9,7 @@ on:
   workflow_dispatch:
 
 env:
-  GO_VERSION: '1.23'
+  GO_VERSION: '1.24'
 
 jobs:
   test:
@@ -20,7 +20,7 @@ jobs:
       fail-fast: false
       matrix:
         os: [ubuntu-latest, macos-latest, windows-latest]
-        go: ['1.23']
+        go: ['1.24']
     
     steps:
     - name: Checkout code

@@ -25,7 +25,7 @@ If applicable, add screenshots to help explain your problem.
 
 **Environment:**
  - OS: [e.g. Ubuntu 22.04, macOS 14.0]
- - Go version: [e.g. 1.23]
+ - Go version: [e.g. 1.24]
  - Browser (if applicable): [e.g. Chrome 120, Safari 17]
  - Server version/commit: [e.g. v1.0.0 or commit hash]
 

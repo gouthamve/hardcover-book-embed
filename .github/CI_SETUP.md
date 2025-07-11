@@ -8,7 +8,6 @@ This repository uses GitHub Actions for continuous integration and deployment.
 Comprehensive testing workflow that runs on every PR and push to main.
 
 **Features:**
-- Multi-version Go testing (1.22, 1.23)
 - Security scanning with gosec
 - Code coverage reporting
 - Linting with golangci-lint
