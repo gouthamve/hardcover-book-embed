@@ -4,6 +4,12 @@
 
 An embeddable HTML component that displays currently reading or last read books from any Hardcover user, with a Go backend for API proxying and caching.
 
+## Use the hosted version
+
+I am already hosting this service for you at [https://hardcoverembed.gouthamve.dev](https://hardcoverembed.gouthamve.dev). You can use it directly without running your own instance.
+
+See [EMBEDDING.md](EMBEDDING.md) for instructions on how to embed the component in your website. And replace `http://localhost:8080` with `https://hardcoverembed.gouthamve.dev` in the examples.
+
 ## Features
 
 - 📚 Displays currently reading or last read books from any Hardcover user

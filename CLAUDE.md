@@ -39,7 +39,7 @@ curl http://localhost:8080/api/books/currently-reading
 - **internal/api/** - HTTP handlers with CORS support for embedding
 
 ### Frontend
-- **web/embed.html** - Self-contained embeddable component with styling and JavaScript
+- **web/static/embed.html** - Self-contained embeddable component with styling and JavaScript
 
 ### Key Design Decisions
 - Caching with 30-minute TTL to stay within Hardcover's 60 requests/minute limit

@@ -11,7 +11,7 @@ The simplest way to embed your books is to add a single line of HTML to your web
 <div data-hardcover-widget data-api-url="http://localhost:8080" data-username="your-username"></div>
 
 <!-- Add this before closing </body> tag -->
-<script src="http://localhost:8080/static/static/widget.js"></script>
+<script src="http://localhost:8080/static/widget.js"></script>
 ```
 
 That's it! Replace "your-username" with any Hardcover username to show their currently reading books.
@@ -20,7 +20,7 @@ To show last read books instead, add `data-book-type="last-read"`:
 
 ```html
 <div data-hardcover-widget data-api-url="http://localhost:8080" data-username="your-username" data-book-type="last-read"></div>
-<script src="http://localhost:8080/static/static/widget.js"></script>
+<script src="http://localhost:8080/static/widget.js"></script>
 ```
 
 ## Embedding Methods
@@ -31,7 +31,7 @@ Add these two lines to your HTML:
 
 ```html
 <div data-hardcover-widget data-api-url="http://localhost:8080" data-username="your-username"></div>
-<script src="http://localhost:8080/static/static/widget.js"></script>
+<script src="http://localhost:8080/static/widget.js"></script>
 ```
 
 ### Method 2: Iframe
@@ -40,7 +40,7 @@ For complete isolation from your site's styles:
 
 ```html
 <iframe 
-    src="http://localhost:8080/embed.html?username=your-username" 
+    src="http://localhost:8080/static/embed.html?username=your-username" 
     width="100%" 
     height="400"
     frameborder="0"
@@ -49,7 +49,7 @@ For complete isolation from your site's styles:
 
 <!-- For last read books -->
 <iframe 
-    src="http://localhost:8080/embed.html?username=your-username&type=last-read" 
+    src="http://localhost:8080/static/embed.html?username=your-username&type=last-read" 
     width="100%" 
     height="400"
     frameborder="0"
@@ -63,7 +63,7 @@ For more control over initialization:
 
 ```html
 <div id="my-books"></div>
-<script src="http://localhost:8080/static/static/widget.js"></script>
+<script src="http://localhost:8080/static/widget.js"></script>
 <script>
     // Manual initialization
     const widget = new HardcoverWidget(
@@ -126,7 +126,7 @@ You can customize the widget using data attributes:
         data-min-column-width="80px">
     </div>
 </aside>
-<script src="http://localhost:8080/static/static/widget.js"></script>
+<script src="http://localhost:8080/static/widget.js"></script>
 ```
 
 ### Full Width Footer
@@ -145,7 +145,7 @@ You can customize the widget using data attributes:
         </div>
     </div>
 </footer>
-<script src="http://localhost:8080/static/static/widget.js"></script>
+<script src="http://localhost:8080/static/widget.js"></script>
 ```
 
 ### Multiple Widgets
@@ -174,7 +174,7 @@ You can have multiple widgets on the same page:
     class="sidebar-books">
 </div>
 
-<script src="http://localhost:8080/static/static/widget.js"></script>
+<script src="http://localhost:8080/static/widget.js"></script>
 ```
 
 ### Showing Both Currently Reading and Last Read
@@ -198,7 +198,7 @@ Display both types of books for the same user:
     data-book-type="last-read">
 </div>
 
-<script src="http://localhost:8080/static/static/widget.js"></script>
+<script src="http://localhost:8080/static/widget.js"></script>
 ```
 
 ## Styling
@@ -232,14 +232,14 @@ The widget comes with default styles, but you can customize it with CSS:
 1. Add to a post/page using the HTML block:
 ```html
 <div data-hardcover-widget data-api-url="http://your-server.com" data-username="your-username"></div>
-<script src="http://your-server.com/static/static/widget.js"></script>
+<script src="http://your-server.com/static/widget.js"></script>
 ```
 
 2. Or add to your theme's `footer.php`:
 ```php
 <?php if (is_page('about')) : ?>
     <div data-hardcover-widget data-api-url="http://your-server.com" data-username="your-username"></div>
-    <script src="http://your-server.com/static/static/widget.js"></script>
+    <script src="http://your-server.com/static/widget.js"></script>
 <?php endif; ?>
 ```
 
