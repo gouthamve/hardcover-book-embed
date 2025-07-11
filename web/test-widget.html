@@ -48,6 +48,12 @@
             overflow-x: auto;
         }
         
+        pre code {
+            background: transparent;
+            color: #f9fafb;
+            padding: 0;
+        }
+        
         .sidebar-demo {
             max-width: 300px;
             padding: 1rem;
@@ -83,9 +89,7 @@
 <body>
     <h1>Hardcover Widget Demo</h1>
     <div class="notice">
-        <strong>Note:</strong> Username is now required! Replace "gouthamve" with any Hardcover username to see their books.
-        <br>
-        <strong>New:</strong> You can now show "last-read" books by adding data-book-type="last-read"!
+        See the source code of this page at <a href="https://github.com/gouthamve/hardcover-book-embed/blob/main/web/test-widget.html" target="_blank">github.com/gouthamve/hardcover-book-embed</a>.
     </div>
     <p>This page demonstrates various ways to embed the Hardcover currently reading widget.</p>
 
@@ -93,9 +97,9 @@
     <div class="demo-section">
         <h2>1. Default Widget</h2>
         <p>Simple embed with default settings:</p>
-        <pre><code>&lt;div data-hardcover-widget data-api-url="http://localhost:8080" data-username="your-username"&gt;&lt;/div&gt;</code></pre>
+        <pre><code>&lt;div data-hardcover-widget data-api-url="${apiUrl}" data-username="your-username"&gt;&lt;/div&gt;</code></pre>
         
-        <div data-hardcover-widget data-api-url="http://localhost:8080" data-username="gouthamve"></div>
+        <div data-hardcover-widget data-username="gouthamve"></div>
     </div>
 
     <!-- Customized Size -->
@@ -103,7 +107,7 @@
         <h2>2. Customized Size</h2>
         <p>Widget with custom width and column settings:</p>
         <pre><code>&lt;div data-hardcover-widget 
-     data-api-url="http://localhost:8080"
+     data-api-url="${apiUrl}"
      data-username="your-username"
      data-max-width="500px"
      data-min-column-width="100px"
@@ -111,7 +115,6 @@
         
         <div 
             data-hardcover-widget 
-            data-api-url="http://localhost:8080"
             data-username="gouthamve"
             data-max-width="500px"
             data-min-column-width="100px"
@@ -128,7 +131,6 @@
             <h3>Currently Reading</h3>
             <div 
                 data-hardcover-widget
-                data-api-url="http://localhost:8080"
                 data-username="gouthamve"
                 data-max-width="100%"
                 data-min-column-width="80px"
@@ -142,13 +144,12 @@
         <h2>4. Fixed Columns</h2>
         <p>Widget with exactly 4 columns:</p>
         <pre><code>&lt;div data-hardcover-widget 
-     data-api-url="http://localhost:8080"
+     data-api-url="${apiUrl}"
      data-username="your-username"
      data-columns="4"&gt;&lt;/div&gt;</code></pre>
         
         <div 
             data-hardcover-widget
-            data-api-url="http://localhost:8080"
             data-username="gouthamve"
             data-columns="4">
         </div>
@@ -159,13 +160,12 @@
         <h2>5. Without "Powered by" Link</h2>
         <p>Hide the attribution link:</p>
         <pre><code>&lt;div data-hardcover-widget 
-     data-api-url="http://localhost:8080"
+     data-api-url="${apiUrl}"
      data-username="your-username"
      data-show-powered-by="false"&gt;&lt;/div&gt;</code></pre>
         
         <div 
             data-hardcover-widget
-            data-api-url="http://localhost:8080"
             data-username="gouthamve"
             data-show-powered-by="false"
             data-max-width="400px">
@@ -179,7 +179,6 @@
         
         <div 
             data-hardcover-widget
-            data-api-url="http://localhost:8080"
             data-username="gouthamve"
             data-max-width="600px">
         </div>
@@ -192,7 +191,7 @@
         <pre><code>const widget = new HardcoverWidget(
     document.getElementById('js-widget'),
     {
-        apiUrl: 'http://localhost:8080',
+        apiUrl: '${apiUrl}',
         username: 'gouthamve',
         maxWidth: '400px',
         showPoweredBy: true
@@ -206,11 +205,11 @@
     <div class="demo-section">
         <h2>8. Iframe Method</h2>
         <p>Completely isolated iframe embed:</p>
-        <pre><code>&lt;iframe src="http://localhost:8080/static/embed.html?username=your-username" 
+        <pre><code>&lt;iframe src="${apiUrl}/static/embed.html?username=your-username" 
         width="100%" height="300" frameborder="0"&gt;&lt;/iframe&gt;</code></pre>
         
         <iframe 
-            src="http://localhost:8080/static/embed.html?username=gouthamve" 
+            src="/static/embed.html?username=gouthamve" 
             width="100%" 
             height="300" 
             frameborder="0"
@@ -223,13 +222,12 @@
         <h2>9. Last Read Books</h2>
         <p>Display recently finished books:</p>
         <pre><code>&lt;div data-hardcover-widget 
-     data-api-url="http://localhost:8080"
+     data-api-url="${apiUrl}"
      data-username="your-username"
      data-book-type="last-read"&gt;&lt;/div&gt;</code></pre>
         
         <div 
             data-hardcover-widget
-            data-api-url="http://localhost:8080"
             data-username="gouthamve"
             data-book-type="last-read">
         </div>
@@ -243,7 +241,6 @@
         <h3>Currently Reading</h3>
         <div 
             data-hardcover-widget
-            data-api-url="http://localhost:8080"
             data-username="gouthamve"
             data-book-type="currently-reading"
             data-max-width="500px">
@@ -252,7 +249,6 @@
         <h3>Recently Finished</h3>
         <div 
             data-hardcover-widget
-            data-api-url="http://localhost:8080"
             data-username="gouthamve"
             data-book-type="last-read"
             data-max-width="500px">
@@ -260,7 +256,41 @@
     </div>
 
     <!-- Load widget script at the end -->
-    <script src="http://localhost:8080/static/widget.js"></script>
+    <script>
+        // Dynamically determine the API URL based on current location
+        const currentOrigin = window.location.origin;
+        const apiUrl = currentOrigin;
+        
+        // Update all data-api-url attributes
+        document.addEventListener('DOMContentLoaded', function() {
+            // Update all widgets with dynamic API URL
+            const widgets = document.querySelectorAll('[data-hardcover-widget]');
+            widgets.forEach(widget => {
+                if (!widget.getAttribute('data-api-url')) {
+                    widget.setAttribute('data-api-url', apiUrl);
+                } else {
+                    widget.setAttribute('data-api-url', apiUrl);
+                }
+            });
+            
+            // Update iframe src
+            const iframe = document.querySelector('iframe[src*="/static/embed.html"]');
+            if (iframe) {
+                iframe.src = `${apiUrl}/static/embed.html?username=gouthamve`;
+            }
+            
+            // Update all code examples
+            const codeBlocks = document.querySelectorAll('pre code');
+            codeBlocks.forEach(block => {
+                block.textContent = block.textContent.replace(/\$\{apiUrl\}/g, apiUrl);
+            });
+        });
+        
+        // Load widget script dynamically
+        const scriptElement = document.createElement('script');
+        scriptElement.src = `${apiUrl}/static/widget.js`;
+        document.head.appendChild(scriptElement);
+    </script>
     
     <!-- Manual initialization example -->
     <script>
@@ -269,7 +299,7 @@
             const widget = new HardcoverWidget(
                 document.getElementById('js-widget'),
                 {
-                    apiUrl: 'http://localhost:8080',
+                    apiUrl: apiUrl,
                     username: 'gouthamve',
                     maxWidth: '400px',
                     minColumnWidth: '90px',

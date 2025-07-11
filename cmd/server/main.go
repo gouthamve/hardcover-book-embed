@@ -64,10 +64,6 @@ func main() {
 		http.ServeFile(w, r, "./web/test-widget.html")
 	})
 
-	mux.HandleFunc("GET /embed.html", func(w http.ResponseWriter, r *http.Request) {
-		http.ServeFile(w, r, "./web/embed.html")
-	})
-
 	// Static file handler with caching
 	staticHandler := api.NewStaticHandler("./web/static")
 	mux.Handle("/static/", http.StripPrefix("/static/", staticHandler))
