@@ -319,7 +319,7 @@ func TestClientParsesLastReadAPIResponse(t *testing.T) {
 		} else {
 			// The Date type embeds time.Time, we need to check it matches
 			expectedDate, _ := time.Parse("2006-01-02", expected.LastReadDate)
-			if !response.Books[i].LastReadDate.Time.Equal(expectedDate) {
+			if !response.Books[i].LastReadDate.Equal(expectedDate) {
 				t.Errorf("book %d: expected last_read_date %s, got %v", i, expected.LastReadDate, response.Books[i].LastReadDate.Time)
 			}
 		}

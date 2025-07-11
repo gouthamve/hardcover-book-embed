@@ -70,10 +70,13 @@ func (s *Server) HandleUserCurrentlyReading(w http.ResponseWriter, r *http.Reque
 		metrics.CacheHitsTotal.WithLabelValues("currently-reading", username).Inc()
 		log.Printf("Serving cached currently reading books for user: %s", username)
 		w.Header().Set("Content-Type", "application/json")
-		json.NewEncoder(w).Encode(cached)
+		if err := json.NewEncoder(w).Encode(cached); err != nil {
+			log.Printf("Error encoding cached response: %v", err)
+			http.Error(w, "Internal server error", http.StatusInternalServerError)
+		}
 		return
 	}
-	
+
 	metrics.CacheMissesTotal.WithLabelValues("currently-reading", username).Inc()
 
 	log.Printf("Fetching currently reading books for user: %s", username)
@@ -87,7 +90,10 @@ func (s *Server) HandleUserCurrentlyReading(w http.ResponseWriter, r *http.Reque
 	s.cache.Set(cacheKey, books)
 
 	w.Header().Set("Content-Type", "application/json")
-	json.NewEncoder(w).Encode(books)
+	if err := json.NewEncoder(w).Encode(books); err != nil {
+		log.Printf("Error encoding response: %v", err)
+		http.Error(w, "Internal server error", http.StatusInternalServerError)
+	}
 }
 
 // usernameRegex validates usernames containing only alphanumeric characters, hyphens, and underscores
@@ -121,10 +127,13 @@ func (s *Server) HandleUserLastRead(w http.ResponseWriter, r *http.Request) {
 		metrics.CacheHitsTotal.WithLabelValues("last-read", username).Inc()
 		log.Printf("Serving cached last read books for user: %s", username)
 		w.Header().Set("Content-Type", "application/json")
-		json.NewEncoder(w).Encode(cached)
+		if err := json.NewEncoder(w).Encode(cached); err != nil {
+			log.Printf("Error encoding cached response: %v", err)
+			http.Error(w, "Internal server error", http.StatusInternalServerError)
+		}
 		return
 	}
-	
+
 	metrics.CacheMissesTotal.WithLabelValues("last-read", username).Inc()
 
 	log.Printf("Fetching last read books for user: %s", username)
@@ -138,6 +147,8 @@ func (s *Server) HandleUserLastRead(w http.ResponseWriter, r *http.Request) {
 	s.cache.Set(cacheKey, books)
 
 	w.Header().Set("Content-Type", "application/json")
-	json.NewEncoder(w).Encode(books)
+	if err := json.NewEncoder(w).Encode(books); err != nil {
+		log.Printf("Error encoding response: %v", err)
+		http.Error(w, "Internal server error", http.StatusInternalServerError)
+	}
 }
-

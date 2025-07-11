@@ -87,6 +87,9 @@ jobs:
   security:
     name: Security Scan
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      security-events: write
     
     steps:
     - name: Checkout code
@@ -99,8 +102,17 @@ jobs:
     
     - name: Upload SARIF file
       uses: github/codeql-action/upload-sarif@v3
+      if: success() || failure()
       with:
         sarif_file: results.sarif
+      continue-on-error: true
+    
+    - name: Upload Security Scan Results
+      uses: actions/upload-artifact@v4
+      if: failure()
+      with:
+        name: security-results
+        path: results.sarif
 
   coverage:
     name: Test Coverage

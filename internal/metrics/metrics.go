@@ -79,7 +79,7 @@ var (
 		},
 		[]string{"endpoint", "username"},
 	)
-	
+
 	// Rate Limiting Metrics
 	RateLimitWaitDuration = promauto.NewHistogramVec(
 		prometheus.HistogramOpts{
@@ -89,7 +89,7 @@ var (
 		},
 		[]string{"endpoint"},
 	)
-	
+
 	// Static File Metrics
 	StaticFileRequestsTotal = promauto.NewCounterVec(
 		prometheus.CounterOpts{
@@ -98,7 +98,7 @@ var (
 		},
 		[]string{"file", "status"},
 	)
-	
+
 	StaticFileRequestDuration = promauto.NewHistogramVec(
 		prometheus.HistogramOpts{
 			Name:    "hardcoverembed_static_file_request_duration_seconds",

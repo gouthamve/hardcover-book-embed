@@ -64,7 +64,6 @@ func (c *MemoryCache) cleanup() {
 
 	for range ticker.C {
 		c.mu.Lock()
-		defer c.mu.Unlock()
 
 		now := time.Now()
 		evicted := 0
@@ -79,5 +78,6 @@ func (c *MemoryCache) cleanup() {
 			metrics.CacheEvictionsTotal.Add(float64(evicted))
 		}
 		metrics.CacheSize.Set(float64(len(c.items)))
+		c.mu.Unlock()
 	}
 }

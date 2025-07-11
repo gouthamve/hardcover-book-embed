@@ -11,7 +11,7 @@ import (
 	"strings"
 	"sync"
 	"time"
-	
+
 	"github.com/gouthamve/hardcover-book-embed/internal/metrics"
 )
 
@@ -21,7 +21,6 @@ type StaticFile struct {
 	ETag         string
 	LastModified time.Time
 	Size         int64
-	mu           sync.RWMutex
 }
 
 // StaticHandler serves static files with proper caching headers
@@ -45,7 +44,12 @@ func calculateETag(path string) (string, error) {
 	if err != nil {
 		return "", err
 	}
-	defer file.Close()
+	defer func() {
+		if err := file.Close(); err != nil {
+			// Log but don't fail on close error
+			fmt.Printf("Error closing file %s: %v\n", path, err)
+		}
+	}()
 
 	hash := md5.New()
 	if _, err := io.Copy(hash, file); err != nil {
@@ -58,7 +62,7 @@ func calculateETag(path string) (string, error) {
 // getOrUpdateFileInfo gets cached file info or updates it if stale
 func (h *StaticHandler) getOrUpdateFileInfo(urlPath string) (*StaticFile, error) {
 	filePath := filepath.Join(h.root, urlPath)
-	
+
 	// Check file exists and get info
 	info, err := os.Stat(filePath)
 	if err != nil {
@@ -99,7 +103,7 @@ func (h *StaticHandler) getOrUpdateFileInfo(urlPath string) (*StaticFile, error)
 func (h *StaticHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	// Start timing the request
 	start := time.Now()
-	
+
 	// Only handle GET and HEAD
 	if r.Method != "GET" && r.Method != "HEAD" {
 		metrics.StaticFileRequestsTotal.WithLabelValues("", "405").Inc()
@@ -131,10 +135,10 @@ func (h *StaticHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	// Set caching headers
 	w.Header().Set("ETag", fileInfo.ETag)
 	w.Header().Set("Last-Modified", fileInfo.LastModified.UTC().Format(http.TimeFormat))
-	
+
 	// Set cache control for 1 year (immutable for versioned assets)
 	w.Header().Set("Cache-Control", "public, max-age=31536000, immutable")
-	
+
 	// Set content type based on file extension
 	switch filepath.Ext(urlPath) {
 	case ".js":
@@ -179,7 +183,7 @@ func (h *StaticHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 	// Serve the file
 	http.ServeFile(w, r, fileInfo.Path)
-	
+
 	// Record successful request
 	metrics.StaticFileRequestsTotal.WithLabelValues(urlPath, "200").Inc()
 	metrics.StaticFileRequestDuration.WithLabelValues(urlPath).Observe(time.Since(start).Seconds())

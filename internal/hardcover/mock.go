@@ -40,7 +40,7 @@ func (m *MockClient) GetUserBooksByUsername(username string) (*UserBooksResponse
 	updatedAt4, _ := time.Parse(time.RFC3339, "2025-07-01T09:57:47.96016Z")
 	updatedAt5, _ := time.Parse(time.RFC3339, "2025-05-28T12:46:25.915366Z")
 	responseUpdatedAt, _ := time.Parse(time.RFC3339, "2025-07-11T09:12:20.384103+02:00")
-	
+
 	return &UserBooksResponse{
 		Books: []UserBook{
 			{

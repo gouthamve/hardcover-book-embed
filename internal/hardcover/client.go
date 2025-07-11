@@ -54,7 +54,7 @@ func NewClient(apiToken string) Client {
 // NewClientWithHTTPClient creates a new Hardcover API client with a custom HTTP client
 func NewClientWithHTTPClient(apiToken string, httpClient HTTPClient) Client {
 	limiter := rate.NewLimiter(rate.Limit(0.83), 5)
-	
+
 	return &client{
 		apiToken:    apiToken,
 		httpClient:  httpClient,
@@ -121,7 +121,12 @@ func (c *client) GetUserBooksByUsername(username string) (*UserBooksResponse, er
 		metrics.HardcoverAPIRequestsTotal.WithLabelValues("currently-reading", "error", username).Inc()
 		return nil, fmt.Errorf("failed to execute request: %w", err)
 	}
-	defer resp.Body.Close()
+	defer func() {
+		if err := resp.Body.Close(); err != nil {
+			// Log but don't fail on close error
+			fmt.Printf("Error closing response body: %v\n", err)
+		}
+	}()
 
 	if resp.StatusCode != http.StatusOK {
 		metrics.HardcoverAPIRequestsTotal.WithLabelValues("currently-reading", fmt.Sprintf("%d", resp.StatusCode), username).Inc()
@@ -218,7 +223,12 @@ func (c *client) GetUserLastReadBooksByUsername(username string) (*UserBooksResp
 		metrics.HardcoverAPIRequestsTotal.WithLabelValues("last-read", "error", username).Inc()
 		return nil, fmt.Errorf("failed to execute request: %w", err)
 	}
-	defer resp.Body.Close()
+	defer func() {
+		if err := resp.Body.Close(); err != nil {
+			// Log but don't fail on close error
+			fmt.Printf("Error closing response body: %v\n", err)
+		}
+	}()
 
 	if resp.StatusCode != http.StatusOK {
 		metrics.HardcoverAPIRequestsTotal.WithLabelValues("last-read", fmt.Sprintf("%d", resp.StatusCode), username).Inc()

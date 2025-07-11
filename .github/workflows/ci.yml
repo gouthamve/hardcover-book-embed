@@ -140,6 +140,13 @@ jobs:
         cd dist
         sha256sum * > checksums.txt
     
+    - name: Read checksums
+      id: checksums
+      run: |
+        echo "content<<EOF" >> $GITHUB_OUTPUT
+        cat dist/checksums.txt >> $GITHUB_OUTPUT
+        echo "EOF" >> $GITHUB_OUTPUT
+    
     - name: Create Release
       uses: softprops/action-gh-release@v2
       with:

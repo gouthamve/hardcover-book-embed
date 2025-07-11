@@ -24,7 +24,7 @@ func MetricsMiddleware(endpoint string) func(http.HandlerFunc) http.HandlerFunc 
 	return func(next http.HandlerFunc) http.HandlerFunc {
 		return func(w http.ResponseWriter, r *http.Request) {
 			start := time.Now()
-			
+
 			// Track in-flight requests
 			metrics.HTTPRequestsInFlight.Inc()
 			defer metrics.HTTPRequestsInFlight.Dec()

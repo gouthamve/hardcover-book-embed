@@ -7,11 +7,11 @@ import (
 	"strconv"
 	"time"
 
-	"github.com/prometheus/client_golang/prometheus/promhttp"
 	"github.com/gouthamve/hardcover-book-embed/internal/api"
 	"github.com/gouthamve/hardcover-book-embed/internal/cache"
 	"github.com/gouthamve/hardcover-book-embed/internal/hardcover"
 	"github.com/gouthamve/hardcover-book-embed/internal/metrics"
+	"github.com/prometheus/client_golang/prometheus/promhttp"
 )
 
 func main() {
@@ -24,7 +24,7 @@ func main() {
 	if port == "" {
 		port = "8080"
 	}
-	
+
 	metricsPort := os.Getenv("METRICS_PORT")
 	if metricsPort == "" {
 		metricsPort = "9090"
@@ -51,11 +51,11 @@ func main() {
 	mux := http.NewServeMux()
 
 	// Register routes with patterns and metrics middleware
-	mux.HandleFunc("GET /api/books/currently-reading/{username}", 
+	mux.HandleFunc("GET /api/books/currently-reading/{username}",
 		api.MetricsMiddleware("currently-reading")(server.HandleUserCurrentlyReading))
-	mux.HandleFunc("GET /api/books/last-read/{username}", 
+	mux.HandleFunc("GET /api/books/last-read/{username}",
 		api.MetricsMiddleware("last-read")(server.HandleUserLastRead))
-	
+
 	// Handle OPTIONS for CORS
 	mux.HandleFunc("OPTIONS /api/books/currently-reading/{username}", server.HandleUserCurrentlyReading)
 	mux.HandleFunc("OPTIONS /api/books/last-read/{username}", server.HandleUserLastRead)
@@ -74,7 +74,7 @@ func main() {
 
 	// Initialize metrics
 	metrics.Init()
-	
+
 	// Start metrics server
 	go func() {
 		metricsMux := http.NewServeMux()
