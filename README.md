@@ -10,6 +10,8 @@ I am already hosting this service for you at [https://hardcoverembed.gouthamve.d
 
 See [EMBEDDING.md](EMBEDDING.md) for instructions on how to embed the component in your website. And replace `http://localhost:8080` with `https://hardcoverembed.gouthamve.dev` in the examples.
 
+Also, see it in action here: [https://www.gouthamve.dev/now/](https://www.gouthamve.dev/now/)
+
 ## Features
 
 - 📚 Displays currently reading or last read books from any Hardcover user
