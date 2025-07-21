@@ -25,7 +25,14 @@ func (d *Date) UnmarshalJSON(b []byte) error {
 		return nil
 	}
 
-	// Fall back to full timestamp format
+	// Try parsing as datetime without timezone (e.g., "2025-05-02T00:00:00")
+	t, err = time.Parse("2006-01-02T15:04:05", s)
+	if err == nil {
+		d.Time = t
+		return nil
+	}
+
+	// Fall back to full timestamp format with timezone
 	t, err = time.Parse(time.RFC3339, s)
 	if err != nil {
 		return err
@@ -50,10 +57,19 @@ type Contributor struct {
 }
 
 type UserBook struct {
-	Rating       *float64  `json:"rating,omitempty"`
-	Book         Book      `json:"book"`
-	UpdatedAt    time.Time `json:"updated_at"`
-	LastReadDate *Date     `json:"last_read_date,omitempty"`
+	Rating            *float64    `json:"rating,omitempty"`
+	Book              Book        `json:"book"`
+	UpdatedAt         time.Time   `json:"updated_at"`
+	LastReadDate      *Date       `json:"last_read_date,omitempty"`
+	ReviewLength      *int        `json:"review_length,omitempty"`
+	ReviewRaw         *string     `json:"review_raw,omitempty"`
+	ReviewedAt        *Date       `json:"reviewed_at,omitempty"`
+	HasReview         bool        `json:"has_review"`
+	ReviewHasSpoilers bool        `json:"review_has_spoilers"`
+	ReviewHTML        *string     `json:"review_html,omitempty"`
+	ReviewObject      interface{} `json:"review_object,omitempty"`
+	ReviewSlate       interface{} `json:"review_slate,omitempty"`
+	URL               string      `json:"url"`
 }
 
 type UserBooksAPIResponse struct {

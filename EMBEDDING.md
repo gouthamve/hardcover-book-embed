@@ -1,6 +1,6 @@
 # Hardcover Book Widget - Embedding Guide
 
-This guide explains how to embed any Hardcover user's currently reading or last read books on any website.
+This guide explains how to embed any Hardcover user's currently reading books, last read books, or book reviews on any website.
 
 ## Quick Start
 
@@ -52,6 +52,15 @@ For complete isolation from your site's styles:
     src="http://localhost:8080/static/embed.html?username=your-username&type=last-read" 
     width="100%" 
     height="400"
+    frameborder="0"
+    style="border: none;">
+</iframe>
+
+<!-- For book reviews -->
+<iframe 
+    src="http://localhost:8080/static/reviews-embed.html?username=your-username" 
+    width="100%" 
+    height="600"
     frameborder="0"
     style="border: none;">
 </iframe>
@@ -177,9 +186,9 @@ You can have multiple widgets on the same page:
 <script src="http://localhost:8080/static/widget.js"></script>
 ```
 
-### Showing Both Currently Reading and Last Read
+### Showing Multiple Book Types
 
-Display both types of books for the same user:
+Display currently reading, last read, and reviews for the same user:
 
 ```html
 <h2>Currently Reading</h2>
@@ -199,6 +208,15 @@ Display both types of books for the same user:
 </div>
 
 <script src="http://localhost:8080/static/widget.js"></script>
+
+<h2>Book Reviews</h2>
+<iframe 
+    src="http://localhost:8080/static/reviews-embed.html?username=your-username" 
+    width="100%" 
+    height="600"
+    frameborder="0"
+    style="border: none;">
+</iframe>
 ```
 
 ## Styling
