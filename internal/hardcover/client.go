@@ -19,7 +19,7 @@ const (
 
 // Client is the interface for interacting with the Hardcover API
 type Client interface {
-	GetUserBooksByUsername(username string) (*UserBooksResponse, error)
+	GetUserCurrentlyReadingBooksByUsername(username string) (*UserBooksResponse, error)
 	GetUserLastReadBooksByUsername(username string) (*UserBooksResponse, error)
 	GetUserReviewsByUsername(username string) (*UserBooksResponse, error)
 }
@@ -144,7 +144,7 @@ func (c *client) makeHardcoverRequest(operation, username, query string) (*UserB
 	}, nil
 }
 
-func (c *client) GetUserBooksByUsername(username string) (*UserBooksResponse, error) {
+func (c *client) GetUserCurrentlyReadingBooksByUsername(username string) (*UserBooksResponse, error) {
 	query := fmt.Sprintf(`{
 		user_books(
 			where: {user: {username: {_eq: "%s"}}, status_id: {_eq: 2}},
