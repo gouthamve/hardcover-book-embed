@@ -80,7 +80,7 @@ func (s *Server) HandleUserCurrentlyReading(w http.ResponseWriter, r *http.Reque
 	metrics.CacheMissesTotal.WithLabelValues("currently-reading", username).Inc()
 
 	log.Printf("Fetching currently reading books for user: %s", username)
-	books, err := s.client.GetUserBooksByUsername(username)
+	books, err := s.client.GetUserCurrentlyReadingBooksByUsername(username)
 	if err != nil {
 		log.Printf("Error fetching books for user %s: %v", username, err)
 		http.Error(w, "Failed to fetch books", http.StatusInternalServerError)

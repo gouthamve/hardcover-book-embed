@@ -38,7 +38,7 @@ func main() {
 	if bookType == "last-read" {
 		books, err = client.GetUserLastReadBooksByUsername(username)
 	} else {
-		books, err = client.GetUserBooksByUsername(username)
+		books, err = client.GetUserCurrentlyReadingBooksByUsername(username)
 	}
 	if err != nil {
 		log.Fatalf("Error fetching books: %v", err)

@@ -29,8 +29,8 @@ func NewMockClient() *MockClient {
 	}
 }
 
-// GetUserBooksByUsername implements the Client interface
-func (m *MockClient) GetUserBooksByUsername(username string) (*UserBooksResponse, error) {
+// GetUserCurrentlyReadingBooksByUsername implements the Client interface
+func (m *MockClient) GetUserCurrentlyReadingBooksByUsername(username string) (*UserBooksResponse, error) {
 	m.GetUserBooksCalls = append(m.GetUserBooksCalls, username)
 
 	if m.GetUserBooksByUsernameFunc != nil {

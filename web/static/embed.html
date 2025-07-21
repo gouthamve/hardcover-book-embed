@@ -5,266 +5,38 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Currently Reading - Hardcover</title>
     <style>
-        :root {
-            --primary-color: #2563eb;
-            --text-color: #374151;
-            --text-light: #6b7280;
-            --border-color: #e5e7eb;
-            --bg-color: #ffffff;
-            --shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1);
-            --radius: 8px;
-            --transition: all 0.3s ease;
-        }
-
-        * {
-            box-sizing: border-box;
-        }
-
-        .hardcover-embed {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-            max-width: 800px;
-            margin: 0 auto;
-            background: var(--bg-color);
-            border-radius: var(--radius);
-            padding: 1rem;
-        }
-
-        .books-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
-            gap: 1rem;
-            padding: 0;
+        body {
             margin: 0;
-            list-style: none;
-        }
-
-        .book-item {
-            position: relative;
-            transition: var(--transition);
+            padding: 0;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
         }
         
-        .book-link {
-            display: block;
-            text-decoration: none;
-            color: inherit;
-        }
-
-        .book-item:hover {
-            transform: translateY(-4px);
-        }
-
-        .book-cover {
-            position: relative;
-            width: 100%;
-            padding-bottom: 150%; /* 2:3 aspect ratio */
-            background: var(--border-color);
-            border-radius: 6px;
-            overflow: hidden;
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-            transition: var(--transition);
-        }
-
-        .book-item:hover .book-cover {
-            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.15);
-        }
-
-        .book-cover img {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-        }
-
-        .book-title-overlay {
-            position: absolute;
-            bottom: 0;
-            left: 0;
-            right: 0;
-            background: linear-gradient(to top, rgba(0, 0, 0, 0.9) 0%, rgba(0, 0, 0, 0.7) 50%, transparent 100%);
-            color: white;
-            padding: 2rem 0.75rem 0.75rem;
-            opacity: 0;
-            transition: var(--transition);
-            font-size: 0.875rem;
-            font-weight: 600;
-            line-height: 1.3;
-        }
-
-        .book-item:hover .book-title-overlay {
-            opacity: 1;
-        }
-
-        .loading {
-            text-align: center;
-            padding: 3rem;
-            color: var(--text-light);
-        }
-
-        .error {
-            text-align: center;
-            padding: 2rem;
-            color: #dc2626;
-            background: #fef2f2;
-            border-radius: var(--radius);
-            margin: 1rem;
-        }
-
-        .empty-state {
-            text-align: center;
-            padding: 3rem;
-            color: var(--text-light);
-        }
-
-        .powered-by {
-            margin-top: 1.5rem;
-            text-align: center;
-            font-size: 0.75rem;
-            color: var(--text-light);
-        }
-
-        .powered-by a {
-            color: var(--primary-color);
-            text-decoration: none;
-            transition: var(--transition);
-        }
-
-        .powered-by a:hover {
-            text-decoration: underline;
-        }
-
-        @media (max-width: 600px) {
-            .books-grid {
-                grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
-                gap: 0.75rem;
-            }
-            
-            .book-title-overlay {
-                font-size: 0.75rem;
-                padding: 1.5rem 0.5rem 0.5rem;
-            }
-        }
-
-        @media (max-width: 400px) {
-            .books-grid {
-                grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
-                gap: 0.5rem;
-            }
+        /* Ensure the widget fills the iframe */
+        .hardcover-widget {
+            margin: 0 !important;
+            padding: 1rem !important;
         }
     </style>
 </head>
 <body>
-    <div class="hardcover-embed" id="hardcover-widget">
-        <div class="loading" id="loading">
-            Loading books...
-        </div>
-        
-        <ul class="books-grid" id="books-grid" style="display: none;"></ul>
-        
-        <div class="powered-by">
-            <a href="https://hardcover.app/@${username}" target="_blank" rel="noopener" id="powered-by-link">Currently reading on Hardcover</a>
-        </div>
-    </div>
-
+    <div data-hardcover-widget></div>
+    
     <script>
-        (function() {
-            const API_BASE = window.location.origin;
-            const REFRESH_INTERVAL = 30 * 60 * 1000; // 30 minutes
-            
-            // Get username from query parameter
-            const urlParams = new URLSearchParams(window.location.search);
-            const username = urlParams.get('username');
-            const bookType = urlParams.get('type') || 'currently-reading';
-            
-            if (!username) {
-                document.getElementById('loading').innerHTML = '<div class="error">Username parameter is required. Add ?username=YOUR_USERNAME to the URL.</div>';
-                return;
-            }
-
-            const elements = {
-                loading: document.getElementById('loading'),
-                booksGrid: document.getElementById('books-grid'),
-                poweredByLink: document.getElementById('powered-by-link')
-            };
-            
-            // Update the powered-by link with the username and text
-            if (elements.poweredByLink && username) {
-                elements.poweredByLink.href = `https://hardcover.app/@${username}`;
-                const linkText = bookType === 'last-read' 
-                    ? 'Last read on Hardcover'
-                    : 'Currently reading on Hardcover';
-                elements.poweredByLink.textContent = linkText;
-            }
-
-            function renderBook(book) {
-                const cover = book.book.image && book.book.image.url
-                    ? `<img src="${book.book.image.url}" alt="${book.book.title} cover" loading="lazy">`
-                    : '';
-                
-                const bookUrl = `https://hardcover.app/books/${book.book.slug}`;
-
-                return `
-                    <li class="book-item">
-                        <a href="${bookUrl}" target="_blank" rel="noopener" class="book-link">
-                            <div class="book-cover">
-                                ${cover}
-                                <div class="book-title-overlay">${book.book.title}</div>
-                            </div>
-                        </a>
-                    </li>
-                `;
-            }
-
-            function showError(message) {
-                elements.loading.style.display = 'none';
-                elements.booksGrid.style.display = 'none';
-                elements.booksGrid.innerHTML = `<div class="error">${message}</div>`;
-                elements.booksGrid.style.display = 'block';
-            }
-
-            function showEmptyState() {
-                elements.loading.style.display = 'none';
-                elements.booksGrid.innerHTML = `<div class="empty-state">No books currently being read</div>`;
-                elements.booksGrid.style.display = 'block';
-            }
-
-            async function fetchBooks() {
-                try {
-                    const endpoint = bookType === 'last-read' 
-                        ? `/api/books/last-read/${username}`
-                        : `/api/books/currently-reading/${username}`;
-                    
-                    const response = await fetch(`${API_BASE}${endpoint}`);
-                    
-                    if (!response.ok) {
-                        throw new Error(`HTTP ${response.status}`);
-                    }
-                    
-                    const data = await response.json();
-                    
-                    elements.loading.style.display = 'none';
-                    
-                    if (data.count === 0) {
-                        showEmptyState();
-                        return;
-                    }
-                    
-                    elements.booksGrid.innerHTML = data.books.map(renderBook).join('');
-                    elements.booksGrid.style.display = 'grid';
-                    
-                } catch (error) {
-                    console.error('Failed to fetch books:', error);
-                    showError('Failed to load books. Please try again later.');
-                }
-            }
-
-            // Initial load
-            fetchBooks();
-            
-            // Refresh periodically
-            setInterval(fetchBooks, REFRESH_INTERVAL);
-        })();
+        // Parse URL parameters
+        const urlParams = new URLSearchParams(window.location.search);
+        const username = urlParams.get('username');
+        const bookType = urlParams.get('type') || 'currently-reading';
+        
+        // Set up widget configuration
+        if (username) {
+            const widget = document.querySelector('[data-hardcover-widget]');
+            widget.dataset.apiUrl = window.location.origin;
+            widget.dataset.username = username;
+            widget.dataset.bookType = bookType;
+            widget.dataset.showPoweredBy = 'true';
+        }
     </script>
+    
+    <script src="widget.js"></script>
 </body>
 </html>

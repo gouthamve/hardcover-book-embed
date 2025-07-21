@@ -19,7 +19,7 @@ const (
 
 // Client is the interface for interacting with the Hardcover API
 type Client interface {
-	GetUserBooksByUsername(username string) (*UserBooksResponse, error)
+	GetUserCurrentlyReadingBooksByUsername(username string) (*UserBooksResponse, error)
 	GetUserLastReadBooksByUsername(username string) (*UserBooksResponse, error)
 	GetUserReviewsByUsername(username string) (*UserBooksResponse, error)
 }
@@ -63,8 +63,7 @@ func NewClientWithHTTPClient(apiToken string, httpClient HTTPClient) Client {
 	}
 }
 
-func (c *client) GetUserBooksByUsername(username string) (*UserBooksResponse, error) {
-	// Wait for rate limiter
+func (c *client) makeHardcoverRequest(operation, username, query string) (*UserBooksResponse, error) {
 	ctx := context.Background()
 	waitStart := time.Now()
 	if err := c.rateLimiter.Wait(ctx); err != nil {
@@ -72,27 +71,8 @@ func (c *client) GetUserBooksByUsername(username string) (*UserBooksResponse, er
 	}
 	waitDuration := time.Since(waitStart).Seconds()
 	if waitDuration > 0.001 { // Only record if we actually waited
-		metrics.RateLimitWaitDuration.WithLabelValues("currently-reading").Observe(waitDuration)
+		metrics.RateLimitWaitDuration.WithLabelValues(operation).Observe(waitDuration)
 	}
-
-	query := fmt.Sprintf(`{
-		user_books(
-			where: {user: {username: {_eq: "%s"}}, status_id: {_eq: 2}},
-			order_by: {updated_at: desc},
-			limit: 5
-		) {
-			rating
-			updated_at
-			book {
-				id
-				title
-				image {
-					url
-				}
-				slug
-			}
-		}
-	}`, username)
 
 	reqBody := map[string]string{
 		"query": query,
@@ -116,10 +96,10 @@ func (c *client) GetUserBooksByUsername(username string) (*UserBooksResponse, er
 	start := time.Now()
 	resp, err := c.httpClient.Do(req)
 	duration := time.Since(start).Seconds()
-	metrics.HardcoverAPIRequestDuration.WithLabelValues("currently-reading", username).Observe(duration)
+	metrics.HardcoverAPIRequestDuration.WithLabelValues(operation, username).Observe(duration)
 
 	if err != nil {
-		metrics.HardcoverAPIRequestsTotal.WithLabelValues("currently-reading", "error", username).Inc()
+		metrics.HardcoverAPIRequestsTotal.WithLabelValues(operation, "error", username).Inc()
 		return nil, fmt.Errorf("failed to execute request: %w", err)
 	}
 	defer func() {
@@ -130,11 +110,11 @@ func (c *client) GetUserBooksByUsername(username string) (*UserBooksResponse, er
 	}()
 
 	if resp.StatusCode != http.StatusOK {
-		metrics.HardcoverAPIRequestsTotal.WithLabelValues("currently-reading", fmt.Sprintf("%d", resp.StatusCode), username).Inc()
+		metrics.HardcoverAPIRequestsTotal.WithLabelValues(operation, fmt.Sprintf("%d", resp.StatusCode), username).Inc()
 		return nil, fmt.Errorf("API request failed with status %d", resp.StatusCode)
 	}
 
-	metrics.HardcoverAPIRequestsTotal.WithLabelValues("currently-reading", "200", username).Inc()
+	metrics.HardcoverAPIRequestsTotal.WithLabelValues(operation, "200", username).Inc()
 
 	var graphqlResp UserBooksAPIResponse
 	if err := json.NewDecoder(resp.Body).Decode(&graphqlResp); err != nil {
@@ -164,18 +144,30 @@ func (c *client) GetUserBooksByUsername(username string) (*UserBooksResponse, er
 	}, nil
 }
 
-func (c *client) GetUserLastReadBooksByUsername(username string) (*UserBooksResponse, error) {
-	// Wait for rate limiter
-	ctx := context.Background()
-	waitStart := time.Now()
-	if err := c.rateLimiter.Wait(ctx); err != nil {
-		return nil, fmt.Errorf("rate limiter error: %w", err)
-	}
-	waitDuration := time.Since(waitStart).Seconds()
-	if waitDuration > 0.001 { // Only record if we actually waited
-		metrics.RateLimitWaitDuration.WithLabelValues("last-read").Observe(waitDuration)
-	}
+func (c *client) GetUserCurrentlyReadingBooksByUsername(username string) (*UserBooksResponse, error) {
+	query := fmt.Sprintf(`{
+		user_books(
+			where: {user: {username: {_eq: "%s"}}, status_id: {_eq: 2}},
+			order_by: {updated_at: desc},
+			limit: 5
+		) {
+			rating
+			updated_at
+			book {
+				id
+				title
+				image {
+					url
+				}
+				slug
+			}
+		}
+	}`, username)
 
+	return c.makeHardcoverRequest("currently-reading", username, query)
+}
+
+func (c *client) GetUserLastReadBooksByUsername(username string) (*UserBooksResponse, error) {
 	query := fmt.Sprintf(`{
 		user_books(
 			where: {user: {username: {_eq: "%s"}}, status_id: {_eq: 3}},
@@ -196,88 +188,10 @@ func (c *client) GetUserLastReadBooksByUsername(username string) (*UserBooksResp
 		}
 	}`, username)
 
-	reqBody := map[string]string{
-		"query": query,
-	}
-
-	jsonData, err := json.Marshal(reqBody)
-	if err != nil {
-		return nil, fmt.Errorf("failed to marshal request: %w", err)
-	}
-
-	req, err := http.NewRequest("POST", HardcoverAPIURL, bytes.NewBuffer(jsonData))
-	if err != nil {
-		return nil, fmt.Errorf("failed to create request: %w", err)
-	}
-
-	req.Header.Set("Content-Type", "application/json")
-	req.Header.Set("Authorization", "Bearer "+c.apiToken)
-	req.Header.Set("User-Agent", UserAgent)
-
-	// Track API request duration
-	start := time.Now()
-	resp, err := c.httpClient.Do(req)
-	duration := time.Since(start).Seconds()
-	metrics.HardcoverAPIRequestDuration.WithLabelValues("last-read", username).Observe(duration)
-
-	if err != nil {
-		metrics.HardcoverAPIRequestsTotal.WithLabelValues("last-read", "error", username).Inc()
-		return nil, fmt.Errorf("failed to execute request: %w", err)
-	}
-	defer func() {
-		if err := resp.Body.Close(); err != nil {
-			// Log but don't fail on close error
-			fmt.Printf("Error closing response body: %v\n", err)
-		}
-	}()
-
-	if resp.StatusCode != http.StatusOK {
-		metrics.HardcoverAPIRequestsTotal.WithLabelValues("last-read", fmt.Sprintf("%d", resp.StatusCode), username).Inc()
-		return nil, fmt.Errorf("API request failed with status %d", resp.StatusCode)
-	}
-
-	metrics.HardcoverAPIRequestsTotal.WithLabelValues("last-read", "200", username).Inc()
-
-	var graphqlResp UserBooksAPIResponse
-	if err := json.NewDecoder(resp.Body).Decode(&graphqlResp); err != nil {
-		return nil, fmt.Errorf("failed to decode response: %w", err)
-	}
-
-	if len(graphqlResp.Errors) > 0 {
-		return nil, fmt.Errorf("GraphQL errors: %v", graphqlResp.Errors)
-	}
-
-	// Process books and add fallback images
-	books := graphqlResp.Data.UserBooks
-	for i := range books {
-		if books[i].Book.Image == nil {
-			// Generate a fallback image based on book ID
-			coverNum := (books[i].Book.ID % 9) + 1
-			books[i].Book.Image = &Image{
-				URL: fmt.Sprintf("https://assets.hardcover.app/static/covers/cover%d.webp", coverNum),
-			}
-		}
-	}
-
-	return &UserBooksResponse{
-		Books:     books,
-		Count:     len(books),
-		UpdatedAt: time.Now(),
-	}, nil
+	return c.makeHardcoverRequest("last-read", username, query)
 }
 
 func (c *client) GetUserReviewsByUsername(username string) (*UserBooksResponse, error) {
-	// Wait for rate limiter
-	ctx := context.Background()
-	waitStart := time.Now()
-	if err := c.rateLimiter.Wait(ctx); err != nil {
-		return nil, fmt.Errorf("rate limiter error: %w", err)
-	}
-	waitDuration := time.Since(waitStart).Seconds()
-	if waitDuration > 0.001 { // Only record if we actually waited
-		metrics.RateLimitWaitDuration.WithLabelValues("reviews").Observe(waitDuration)
-	}
-
 	query := fmt.Sprintf(`{
 		user_books(
 			where: {has_review: {_eq: true}, user: {username: {_eq: "%s"}}}
@@ -305,72 +219,5 @@ func (c *client) GetUserReviewsByUsername(username string) (*UserBooksResponse, 
 		}
 	}`, username)
 
-	reqBody := map[string]string{
-		"query": query,
-	}
-
-	jsonData, err := json.Marshal(reqBody)
-	if err != nil {
-		return nil, fmt.Errorf("failed to marshal request: %w", err)
-	}
-
-	req, err := http.NewRequest("POST", HardcoverAPIURL, bytes.NewBuffer(jsonData))
-	if err != nil {
-		return nil, fmt.Errorf("failed to create request: %w", err)
-	}
-
-	req.Header.Set("Content-Type", "application/json")
-	req.Header.Set("Authorization", "Bearer "+c.apiToken)
-	req.Header.Set("User-Agent", UserAgent)
-
-	// Track API request duration
-	start := time.Now()
-	resp, err := c.httpClient.Do(req)
-	duration := time.Since(start).Seconds()
-	metrics.HardcoverAPIRequestDuration.WithLabelValues("reviews", username).Observe(duration)
-
-	if err != nil {
-		metrics.HardcoverAPIRequestsTotal.WithLabelValues("reviews", "error", username).Inc()
-		return nil, fmt.Errorf("failed to execute request: %w", err)
-	}
-	defer func() {
-		if err := resp.Body.Close(); err != nil {
-			// Log but don't fail on close error
-			fmt.Printf("Error closing response body: %v\n", err)
-		}
-	}()
-
-	if resp.StatusCode != http.StatusOK {
-		metrics.HardcoverAPIRequestsTotal.WithLabelValues("reviews", fmt.Sprintf("%d", resp.StatusCode), username).Inc()
-		return nil, fmt.Errorf("API request failed with status %d", resp.StatusCode)
-	}
-
-	metrics.HardcoverAPIRequestsTotal.WithLabelValues("reviews", "200", username).Inc()
-
-	var graphqlResp UserBooksAPIResponse
-	if err := json.NewDecoder(resp.Body).Decode(&graphqlResp); err != nil {
-		return nil, fmt.Errorf("failed to decode response: %w", err)
-	}
-
-	if len(graphqlResp.Errors) > 0 {
-		return nil, fmt.Errorf("GraphQL errors: %v", graphqlResp.Errors)
-	}
-
-	// Process books and add fallback images
-	books := graphqlResp.Data.UserBooks
-	for i := range books {
-		if books[i].Book.Image == nil {
-			// Generate a fallback image based on book ID
-			coverNum := (books[i].Book.ID % 9) + 1
-			books[i].Book.Image = &Image{
-				URL: fmt.Sprintf("https://assets.hardcover.app/static/covers/cover%d.webp", coverNum),
-			}
-		}
-	}
-
-	return &UserBooksResponse{
-		Books:     books,
-		Count:     len(books),
-		UpdatedAt: time.Now(),
-	}, nil
+	return c.makeHardcoverRequest("reviews", username, query)
 }
