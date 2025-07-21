@@ -84,6 +84,45 @@
             border-radius: 6px;
             margin-bottom: 2rem;
         }
+        
+        .config-form {
+            display: grid;
+            gap: 1rem;
+            margin-bottom: 1rem;
+        }
+        
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+        
+        label {
+            font-weight: 600;
+            color: #374151;
+        }
+        
+        input {
+            padding: 0.5rem;
+            border: 1px solid #d1d5db;
+            border-radius: 4px;
+            font-size: 1rem;
+        }
+        
+        button {
+            background: #2563eb;
+            color: white;
+            padding: 0.75rem 1.5rem;
+            border: none;
+            border-radius: 4px;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: background 0.3s ease;
+        }
+        
+        button:hover {
+            background: #1d4ed8;
+        }
     </style>
 </head>
 <body>
@@ -92,6 +131,21 @@
         See the source code of this page at <a href="https://github.com/gouthamve/hardcover-book-embed/blob/main/web/test-widget.html" target="_blank">github.com/gouthamve/hardcover-book-embed</a>.
     </div>
     <p>This page demonstrates various ways to embed the Hardcover currently reading widget.</p>
+
+    <!-- Configuration Section -->
+    <div class="demo-section">
+        <h2>Configuration</h2>
+        <div class="config-form">
+            <div class="form-group">
+                <label for="username">Hardcover Username:</label>
+                <input type="text" id="username" value="gouthamve" placeholder="Enter Hardcover username">
+            </div>
+            <button onclick="updateWidgets()">Update All Widgets</button>
+        </div>
+        <div class="notice">
+            <strong>Note:</strong> Enter a Hardcover username above and click "Update All Widgets" to see their books.
+        </div>
+    </div>
 
     Add a script tag to load the widget script:
     <pre><code>&lt;script src="https://hardcoverembed.gouthamve.dev/static/widget.js"&gt;&lt;/script&gt;</code></pre>
@@ -297,8 +351,56 @@
     
     <!-- Manual initialization example -->
     <script>
-        // Example of manual initialization
+        // Function to update all widgets with new username
+        function updateWidgets() {
+            const username = document.getElementById('username').value;
+            
+            if (!username) {
+                alert('Please enter a username');
+                return;
+            }
+            
+            // Update all data-username attributes
+            const widgets = document.querySelectorAll('[data-hardcover-widget]');
+            widgets.forEach(widget => {
+                widget.setAttribute('data-username', username);
+            });
+            
+            // Update iframe
+            const iframe = document.querySelector('iframe[src*="/static/embed.html"]');
+            if (iframe) {
+                iframe.src = `${apiUrl}/static/embed.html?username=${username}`;
+            }
+            
+            // Re-initialize all widgets
+            document.querySelectorAll('.hardcover-widget').forEach(el => {
+                el.innerHTML = '';
+                el.classList.remove('hardcover-widget');
+            });
+            
+            // Call auto-init
+            if (window.HardcoverWidget && window.HardcoverWidget.init) {
+                window.HardcoverWidget.init();
+            }
+            
+            // Re-initialize the programmatic widget
+            const jsWidget = document.getElementById('js-widget');
+            if (jsWidget) {
+                jsWidget.innerHTML = '';
+                new HardcoverWidget(jsWidget, {
+                    apiUrl: apiUrl,
+                    username: username,
+                    maxWidth: '400px',
+                    minColumnWidth: '90px',
+                    gap: '0.75rem',
+                    showPoweredBy: true
+                });
+            }
+        }
+        
+        // Initial widget initialization
         document.addEventListener('DOMContentLoaded', function() {
+            // Initial programmatic widget
             const widget = new HardcoverWidget(
                 document.getElementById('js-widget'),
                 {
