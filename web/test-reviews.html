@@ -3,165 +3,232 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Test Book Reviews Widget</title>
+    <title>Hardcover Reviews Widget Test</title>
     <style>
         body {
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            line-height: 1.6;
+            color: #333;
             max-width: 1200px;
             margin: 0 auto;
             padding: 2rem;
-            background: #f3f4f6;
+            background-color: #f5f5f5;
+        }
+        
+        h1, h2 {
+            color: #2563eb;
         }
         
         .section {
             background: white;
             padding: 2rem;
-            border-radius: 8px;
-            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
             margin-bottom: 2rem;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
         }
         
-        h1, h2 {
-            color: #111827;
+        .code-block {
+            background: #1e293b;
+            color: #e2e8f0;
+            padding: 1rem;
+            border-radius: 4px;
+            overflow-x: auto;
+            margin: 1rem 0;
+            font-family: 'Consolas', 'Monaco', monospace;
+            font-size: 0.875rem;
+            line-height: 1.5;
         }
         
-        .example-code {
-            background: #f9fafb;
+        .iframe-wrapper {
             border: 1px solid #e5e7eb;
-            border-radius: 6px;
+            border-radius: 8px;
+            overflow: hidden;
+            margin: 1rem 0;
+        }
+        
+        iframe {
+            width: 100%;
+            border: none;
+            min-height: 600px;
+        }
+        
+        .widget-wrapper {
+            border: 1px solid #e5e7eb;
+            border-radius: 8px;
             padding: 1rem;
             margin: 1rem 0;
-            font-family: 'Courier New', monospace;
-            font-size: 0.875rem;
-            overflow-x: auto;
+            background: white;
         }
         
-        .test-controls {
-            margin: 1rem 0;
+        .config-form {
+            display: grid;
+            gap: 1rem;
+            margin-bottom: 1rem;
+        }
+        
+        .form-group {
             display: flex;
+            flex-direction: column;
             gap: 0.5rem;
-            align-items: center;
         }
         
-        input {
+        label {
+            font-weight: 600;
+            color: #374151;
+        }
+        
+        input, select {
             padding: 0.5rem;
-            border: 1px solid #e5e7eb;
+            border: 1px solid #d1d5db;
             border-radius: 4px;
             font-size: 1rem;
         }
         
         button {
-            padding: 0.5rem 1rem;
             background: #2563eb;
             color: white;
+            padding: 0.75rem 1.5rem;
             border: none;
             border-radius: 4px;
-            cursor: pointer;
             font-size: 1rem;
+            cursor: pointer;
+            transition: background 0.3s ease;
         }
         
         button:hover {
             background: #1d4ed8;
         }
         
-        iframe {
-            width: 100%;
-            border: 1px solid #e5e7eb;
-            border-radius: 6px;
-            min-height: 600px;
+        .note {
+            background: #fef3c7;
+            border: 1px solid #fbbf24;
+            padding: 1rem;
+            border-radius: 4px;
+            margin: 1rem 0;
+            color: #92400e;
         }
     </style>
 </head>
 <body>
+    <h1>Hardcover Reviews Widget Test Page</h1>
+
     <div class="section">
-        <h1>Book Reviews Widget Test Page</h1>
-        <p>This page demonstrates how to embed the Hardcover book reviews widget on your website.</p>
-        
-        <div class="test-controls">
-            <label for="username">Username:</label>
-            <input type="text" id="username" value="gouthamve" placeholder="Enter Hardcover username">
-            <button onclick="updateWidget()">Update Widget</button>
+        <h2>Configuration</h2>
+        <div class="config-form">
+            <div class="form-group">
+                <label for="username">Hardcover Username:</label>
+                <input type="text" id="username" value="gouthamve" placeholder="Enter Hardcover username">
+            </div>
+            <button onclick="updateWidgets()">Update Widgets</button>
+        </div>
+        <div class="note">
+            <strong>Note:</strong> Enter a Hardcover username above and click "Update Widgets" to see their book reviews.
         </div>
     </div>
 
     <div class="section">
-        <h2>Live Example</h2>
-        <iframe id="widget-iframe" src="/static/reviews-embed.html?username=gouthamve" frameborder="0"></iframe>
-    </div>
-
-    <div class="section">
-        <h2>How to Embed</h2>
-        <p>To embed the book reviews widget on your website, use the following iframe code:</p>
+        <h2>Method 1: Iframe Embedding</h2>
+        <p>The simplest way to embed reviews. Just add an iframe to your HTML:</p>
         
-        <div class="example-code" id="embed-code">
+        <div class="code-block">
 &lt;iframe 
-    src="http://localhost:8080/static/reviews-embed.html?username=YOUR_USERNAME" 
+    src="http://localhost:8080/static/reviews-embed.html?username=gouthamve" 
     width="100%" 
     height="600" 
     frameborder="0"&gt;
 &lt;/iframe&gt;
         </div>
         
-        <p>Replace <code>YOUR_USERNAME</code> with your Hardcover username.</p>
-        
-        <h3>Customization Options</h3>
-        <ul>
-            <li><strong>Width:</strong> Set to any value (e.g., "800px", "100%")</li>
-            <li><strong>Height:</strong> Adjust based on your layout needs</li>
-        </ul>
+        <div class="iframe-wrapper">
+            <iframe id="reviews-iframe" src="http://localhost:8080/static/reviews-embed.html?username=gouthamve"></iframe>
+        </div>
     </div>
 
     <div class="section">
-        <h2>API Endpoint</h2>
-        <p>The widget fetches data from:</p>
-        <div class="example-code">
-GET /api/books/reviews/{username}
+        <h2>Method 2: JavaScript Widget</h2>
+        <p>For more control and customization, use the JavaScript widget:</p>
+        
+        <div class="code-block">
+&lt;div data-hardcover-review-widget 
+     data-username="gouthamve"
+     data-api-url="http://localhost:8080"
+     data-max-width="800px"
+     data-show-powered-by="true"&gt;
+&lt;/div&gt;
+&lt;script src="http://localhost:8080/static/review-widget.js"&gt;&lt;/script&gt;
         </div>
         
-        <p>Response format:</p>
-        <div class="example-code">
-{
-    "books": [
-        {
-            "book": {
-                "id": 123,
-                "title": "Book Title",
-                "slug": "book-slug",
-                "image": {
-                    "url": "https://..."
-                }
-            },
-            "rating": 4.5,
-            "review_raw": "This is the review text...",
-            "review_html": "&lt;p&gt;This is the review text...&lt;/p&gt;",
-            "reviewed_at": "2024-01-15T10:30:00Z",
-            "review_has_spoilers": false,
-            "url": "https://hardcover.app/books/..."
-        }
-    ],
-    "count": 10,
-    "updated_at": "2024-01-15T12:00:00Z"
-}
+        <div class="widget-wrapper">
+            <div id="review-widget-container"></div>
         </div>
     </div>
 
+    <div class="section">
+        <h2>Advanced Widget Configuration</h2>
+        <p>The JavaScript widget supports additional configuration options:</p>
+        
+        <div class="code-block">
+// Initialize programmatically with custom options
+new HardcoverReviewWidget(element, {
+    apiUrl: 'http://localhost:8080',
+    username: 'gouthamve',
+    maxWidth: '600px',
+    maxReviewLength: 200,  // Truncate reviews after 200 characters
+    showPoweredBy: false   // Hide "Powered by Hardcover" link
+});
+        </div>
+        
+        <h3>Custom Styled Widget</h3>
+        <div class="widget-wrapper" style="background: #f3f4f6; max-width: 600px; margin: 1rem auto;">
+            <div id="custom-review-widget"></div>
+        </div>
+    </div>
+
+    <script src="http://localhost:8080/static/review-widget.js"></script>
     <script>
-        function updateWidget() {
+        function updateWidgets() {
             const username = document.getElementById('username').value;
-            const iframe = document.getElementById('widget-iframe');
-            const embedCode = document.getElementById('embed-code');
             
-            if (username) {
-                iframe.src = `/static/reviews-embed.html?username=${username}`;
-                
-                embedCode.innerHTML = `&lt;iframe 
-    src="http://localhost:8080/static/reviews-embed.html?username=${username}" 
-    width="100%" 
-    height="600" 
-    frameborder="0"&gt;
-&lt;/iframe&gt;`;
+            if (!username) {
+                alert('Please enter a username');
+                return;
             }
+            
+            // Update iframe
+            const iframe = document.getElementById('reviews-iframe');
+            iframe.src = `http://localhost:8080/static/reviews-embed.html?username=${username}`;
+            
+            // Update regular widget
+            const widgetContainer = document.getElementById('review-widget-container');
+            widgetContainer.innerHTML = '';
+            const widgetDiv = document.createElement('div');
+            widgetContainer.appendChild(widgetDiv);
+            
+            new HardcoverReviewWidget(widgetDiv, {
+                apiUrl: 'http://localhost:8080',
+                username: username,
+                showPoweredBy: true
+            });
+            
+            // Update custom widget
+            const customContainer = document.getElementById('custom-review-widget');
+            customContainer.innerHTML = '';
+            const customDiv = document.createElement('div');
+            customContainer.appendChild(customDiv);
+            
+            new HardcoverReviewWidget(customDiv, {
+                apiUrl: 'http://localhost:8080',
+                username: username,
+                maxWidth: '600px',
+                maxReviewLength: 200,
+                showPoweredBy: false
+            });
         }
+        
+        // Initialize widgets on page load
+        window.addEventListener('DOMContentLoaded', function() {
+            updateWidgets();
+        });
     </script>
 </body>
 </html>
