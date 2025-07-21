@@ -25,6 +25,7 @@
         // Parse URL parameters
         const urlParams = new URLSearchParams(window.location.search);
         const username = urlParams.get('username');
+        const showDate = urlParams.get('showDate');
         
         // Set up widget configuration
         if (username) {
@@ -32,6 +33,11 @@
             widget.dataset.apiUrl = window.location.origin;
             widget.dataset.username = username;
             widget.dataset.showPoweredBy = 'true';
+            
+            // Handle showDate parameter
+            if (showDate !== null) {
+                widget.dataset.showDate = showDate;
+            }
         }
     </script>
     

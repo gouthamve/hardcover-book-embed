@@ -8,7 +8,8 @@
         username: null,
         maxWidth: '800px',
         showPoweredBy: true,
-        maxReviewLength: 300
+        maxReviewLength: 300,
+        showDate: false
     };
 
     // Widget styles
@@ -84,6 +85,8 @@
 
         .hrw-review-header {
             margin-bottom: 0.5rem;
+            overflow: hidden;
+            min-height: 60px; /* Ensure header stays beside image */
         }
 
         .hrw-book-title {
@@ -91,13 +94,19 @@
             font-weight: 600;
             color: #374151;
             margin: 0 0 0.25rem 0;
-            text-decoration: none;
-            display: inline-block;
+            text-decoration: none !important;
+            display: block;
+            box-shadow: none !important;
+            border-bottom: none !important;
         }
 
         .hrw-book-title:hover {
             color: #2563eb;
-            text-decoration: underline;
+            text-decoration: underline !important;
+            text-decoration-thickness: 1px !important;
+            text-underline-offset: 2px !important;
+            box-shadow: none !important;
+            border-bottom: none !important;
         }
 
         .hrw-review-meta {
@@ -416,7 +425,7 @@
                                             ${this.renderStars(review.rating)}
                                         </div>
                                     ` : ''}
-                                    ${review.reviewed_at ? `
+                                    ${review.reviewed_at && this.config.showDate ? `
                                         <span class="hrw-review-date">${this.formatDate(review.reviewed_at)}</span>
                                     ` : ''}
                                 </div>
@@ -460,6 +469,9 @@
             if (element.dataset.maxReviewLength) config.maxReviewLength = parseInt(element.dataset.maxReviewLength);
             if (element.dataset.showPoweredBy !== undefined) {
                 config.showPoweredBy = element.dataset.showPoweredBy !== 'false';
+            }
+            if (element.dataset.showDate !== undefined) {
+                config.showDate = element.dataset.showDate !== 'false';
             }
             
             new HardcoverReviewWidget(element, config);
