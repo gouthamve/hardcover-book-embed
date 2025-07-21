@@ -22,6 +22,8 @@
 
         .hardcover-review-widget * {
             box-sizing: border-box;
+            margin: 0;
+            padding: 0;
         }
 
         .hrw-reviews-list {
@@ -34,13 +36,13 @@
         }
 
         .hrw-review-item {
-            display: flex;
-            gap: 1rem;
-            padding: 1rem;
+            display: block;
+            padding: 1rem !important;
             border: 1px solid #e5e7eb;
             border-radius: 8px;
             transition: all 0.3s ease;
             background: #ffffff;
+            overflow: hidden;
         }
 
         .hrw-review-item:hover {
@@ -49,12 +51,14 @@
         }
 
         .hrw-book-cover {
-            flex-shrink: 0;
+            float: left;
             width: 80px;
             height: 120px;
             border-radius: 4px;
             overflow: hidden;
             box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            margin-right: 1rem !important;
+            margin-bottom: 0.5rem !important;
         }
 
         .hrw-book-cover img {
@@ -68,8 +72,14 @@
         }
 
         .hrw-review-content {
-            flex: 1;
-            min-width: 0;
+            /* Remove overflow to allow text wrapping */
+        }
+        
+        /* Clearfix for floated elements */
+        .hrw-review-item::after {
+            content: "";
+            display: table;
+            clear: both;
         }
 
         .hrw-review-header {
@@ -124,7 +134,8 @@
         }
 
         .hrw-review-text {
-            margin: 0.75rem 0 0 0;
+            margin: 0.75rem 0 0 0 !important;
+            padding: 0 !important;
             line-height: 1.6;
             color: #374151;
             font-size: 0.9375rem;
