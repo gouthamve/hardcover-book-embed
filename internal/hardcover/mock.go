@@ -11,10 +11,13 @@ type MockClient struct {
 	GetUserBooksByUsernameFunc func(username string) (*UserBooksResponse, error)
 	// GetUserLastReadBooksByUsernameFunc allows custom behavior for testing
 	GetUserLastReadBooksByUsernameFunc func(username string) (*UserBooksResponse, error)
+	// GetUserReviewsByUsernameFunc allows custom behavior for testing
+	GetUserReviewsByUsernameFunc func(username string) (*UserBooksResponse, error)
 
 	// CallCount tracks method invocations
 	GetUserBooksCalls     []string
 	GetLastReadBooksCalls []string
+	GetReviewsCalls       []string
 }
 
 // NewMockClient creates a new mock client with default behavior
@@ -22,6 +25,7 @@ func NewMockClient() *MockClient {
 	return &MockClient{
 		GetUserBooksCalls:     []string{},
 		GetLastReadBooksCalls: []string{},
+		GetReviewsCalls:       []string{},
 	}
 }
 
@@ -133,12 +137,57 @@ func (m *MockClient) GetUserLastReadBooksByUsername(username string) (*UserBooks
 	}, nil
 }
 
+// GetUserReviewsByUsername implements the Client interface
+func (m *MockClient) GetUserReviewsByUsername(username string) (*UserBooksResponse, error) {
+	m.GetReviewsCalls = append(m.GetReviewsCalls, username)
+
+	if m.GetUserReviewsByUsernameFunc != nil {
+		return m.GetUserReviewsByUsernameFunc(username)
+	}
+
+	// Default mock response with reviews
+	reviewRaw := "This was an amazing book! I couldn't put it down."
+	reviewHTML := "<p>This was an amazing book! I couldn't put it down.</p>"
+	reviewLength := 48
+	rating := 4.5
+	reviewedAt := &Date{Time: time.Now().Add(-24 * time.Hour)}
+
+	return &UserBooksResponse{
+		Books: []UserBook{
+			{
+				Book: Book{
+					ID:    3,
+					Title: "Mock Reviewed Book",
+					Slug:  "mock-reviewed-book",
+					Image: &Image{
+						URL: "https://example.com/cover3.jpg",
+					},
+				},
+				UpdatedAt:         time.Now(),
+				Rating:            &rating,
+				ReviewRaw:         &reviewRaw,
+				ReviewHTML:        &reviewHTML,
+				ReviewLength:      &reviewLength,
+				ReviewedAt:        reviewedAt,
+				HasReview:         true,
+				ReviewHasSpoilers: false,
+				URL:               "https://hardcover.app/books/mock-reviewed-book",
+			},
+		},
+		Count:     1,
+		UpdatedAt: time.Now(),
+	}, nil
+}
+
 // WithError returns a mock client that always returns an error
 func (m *MockClient) WithError(err error) *MockClient {
 	m.GetUserBooksByUsernameFunc = func(username string) (*UserBooksResponse, error) {
 		return nil, err
 	}
 	m.GetUserLastReadBooksByUsernameFunc = func(username string) (*UserBooksResponse, error) {
+		return nil, err
+	}
+	m.GetUserReviewsByUsernameFunc = func(username string) (*UserBooksResponse, error) {
 		return nil, err
 	}
 	return m
@@ -158,6 +207,9 @@ func (m *MockClient) WithEmptyResponse() *MockClient {
 	m.GetUserLastReadBooksByUsernameFunc = func(username string) (*UserBooksResponse, error) {
 		return emptyResponse, nil
 	}
+	m.GetUserReviewsByUsernameFunc = func(username string) (*UserBooksResponse, error) {
+		return emptyResponse, nil
+	}
 	return m
 }
 
@@ -165,6 +217,7 @@ func (m *MockClient) WithEmptyResponse() *MockClient {
 func (m *MockClient) Reset() {
 	m.GetUserBooksCalls = []string{}
 	m.GetLastReadBooksCalls = []string{}
+	m.GetReviewsCalls = []string{}
 }
 
 // AssertCalled verifies a method was called with specific username
@@ -184,6 +237,13 @@ func (m *MockClient) AssertCalled(method string, username string) error {
 			}
 		}
 		return fmt.Errorf("GetUserLastReadBooksByUsername was not called with username: %s", username)
+	case "GetUserReviewsByUsername":
+		for _, call := range m.GetReviewsCalls {
+			if call == username {
+				return nil
+			}
+		}
+		return fmt.Errorf("GetUserReviewsByUsername was not called with username: %s", username)
 	default:
 		return fmt.Errorf("unknown method: %s", method)
 	}

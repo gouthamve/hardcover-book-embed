@@ -55,13 +55,19 @@ func main() {
 		api.MetricsMiddleware("currently-reading")(server.HandleUserCurrentlyReading))
 	mux.HandleFunc("GET /api/books/last-read/{username}",
 		api.MetricsMiddleware("last-read")(server.HandleUserLastRead))
+	mux.HandleFunc("GET /api/books/reviews/{username}",
+		api.MetricsMiddleware("reviews")(server.HandleUserReviews))
 
 	// Handle OPTIONS for CORS
 	mux.HandleFunc("OPTIONS /api/books/currently-reading/{username}", server.HandleUserCurrentlyReading)
 	mux.HandleFunc("OPTIONS /api/books/last-read/{username}", server.HandleUserLastRead)
+	mux.HandleFunc("OPTIONS /api/books/reviews/{username}", server.HandleUserReviews)
 
 	mux.HandleFunc("GET /test-widget.html", func(w http.ResponseWriter, r *http.Request) {
 		http.ServeFile(w, r, "./web/test-widget.html")
+	})
+	mux.HandleFunc("GET /test-reviews.html", func(w http.ResponseWriter, r *http.Request) {
+		http.ServeFile(w, r, "./web/test-reviews.html")
 	})
 
 	// Static file handler with caching

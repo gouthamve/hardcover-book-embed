@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Book Reviews Widget</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem;
+            background: #f3f4f6;
+        }
+        
+        .section {
+            background: white;
+            padding: 2rem;
+            border-radius: 8px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+            margin-bottom: 2rem;
+        }
+        
+        h1, h2 {
+            color: #111827;
+        }
+        
+        .example-code {
+            background: #f9fafb;
+            border: 1px solid #e5e7eb;
+            border-radius: 6px;
+            padding: 1rem;
+            margin: 1rem 0;
+            font-family: 'Courier New', monospace;
+            font-size: 0.875rem;
+            overflow-x: auto;
+        }
+        
+        .test-controls {
+            margin: 1rem 0;
+            display: flex;
+            gap: 0.5rem;
+            align-items: center;
+        }
+        
+        input {
+            padding: 0.5rem;
+            border: 1px solid #e5e7eb;
+            border-radius: 4px;
+            font-size: 1rem;
+        }
+        
+        button {
+            padding: 0.5rem 1rem;
+            background: #2563eb;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 1rem;
+        }
+        
+        button:hover {
+            background: #1d4ed8;
+        }
+        
+        iframe {
+            width: 100%;
+            border: 1px solid #e5e7eb;
+            border-radius: 6px;
+            min-height: 600px;
+        }
+    </style>
+</head>
+<body>
+    <div class="section">
+        <h1>Book Reviews Widget Test Page</h1>
+        <p>This page demonstrates how to embed the Hardcover book reviews widget on your website.</p>
+        
+        <div class="test-controls">
+            <label for="username">Username:</label>
+            <input type="text" id="username" value="gouthamve" placeholder="Enter Hardcover username">
+            <button onclick="updateWidget()">Update Widget</button>
+        </div>
+    </div>
+
+    <div class="section">
+        <h2>Live Example</h2>
+        <iframe id="widget-iframe" src="/static/reviews-embed.html?username=gouthamve" frameborder="0"></iframe>
+    </div>
+
+    <div class="section">
+        <h2>How to Embed</h2>
+        <p>To embed the book reviews widget on your website, use the following iframe code:</p>
+        
+        <div class="example-code" id="embed-code">
+&lt;iframe 
+    src="http://localhost:8080/static/reviews-embed.html?username=YOUR_USERNAME" 
+    width="100%" 
+    height="600" 
+    frameborder="0"&gt;
+&lt;/iframe&gt;
+        </div>
+        
+        <p>Replace <code>YOUR_USERNAME</code> with your Hardcover username.</p>
+        
+        <h3>Customization Options</h3>
+        <ul>
+            <li><strong>Width:</strong> Set to any value (e.g., "800px", "100%")</li>
+            <li><strong>Height:</strong> Adjust based on your layout needs</li>
+        </ul>
+    </div>
+
+    <div class="section">
+        <h2>API Endpoint</h2>
+        <p>The widget fetches data from:</p>
+        <div class="example-code">
+GET /api/books/reviews/{username}
+        </div>
+        
+        <p>Response format:</p>
+        <div class="example-code">
+{
+    "books": [
+        {
+            "book": {
+                "id": 123,
+                "title": "Book Title",
+                "slug": "book-slug",
+                "image": {
+                    "url": "https://..."
+                }
+            },
+            "rating": 4.5,
+            "review_raw": "This is the review text...",
+            "review_html": "&lt;p&gt;This is the review text...&lt;/p&gt;",
+            "reviewed_at": "2024-01-15T10:30:00Z",
+            "review_has_spoilers": false,
+            "url": "https://hardcover.app/books/..."
+        }
+    ],
+    "count": 10,
+    "updated_at": "2024-01-15T12:00:00Z"
+}
+        </div>
+    </div>
+
+    <script>
+        function updateWidget() {
+            const username = document.getElementById('username').value;
+            const iframe = document.getElementById('widget-iframe');
+            const embedCode = document.getElementById('embed-code');
+            
+            if (username) {
+                iframe.src = `/static/reviews-embed.html?username=${username}`;
+                
+                embedCode.innerHTML = `&lt;iframe 
+    src="http://localhost:8080/static/reviews-embed.html?username=${username}" 
+    width="100%" 
+    height="600" 
+    frameborder="0"&gt;
+&lt;/iframe&gt;`;
+            }
+        }
+    </script>
+</body>
+</html>

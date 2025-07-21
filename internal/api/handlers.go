@@ -152,3 +152,52 @@ func (s *Server) HandleUserLastRead(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "Internal server error", http.StatusInternalServerError)
 	}
 }
+
+func (s *Server) HandleUserReviews(w http.ResponseWriter, r *http.Request) {
+	s.enableCORS(w, r)
+
+	if r.Method == "OPTIONS" {
+		w.WriteHeader(http.StatusOK)
+		return
+	}
+
+	// Extract username from path parameter
+	username := r.PathValue("username")
+
+	// Validate username (alphanumeric, hyphens, underscores)
+	if username == "" || !isValidUsername(username) {
+		http.Error(w, "Invalid username", http.StatusBadRequest)
+		return
+	}
+
+	cacheKey := fmt.Sprintf("reviews_%s", username)
+
+	if cached, found := s.cache.Get(cacheKey); found {
+		metrics.CacheHitsTotal.WithLabelValues("reviews", username).Inc()
+		log.Printf("Serving cached reviews for user: %s", username)
+		w.Header().Set("Content-Type", "application/json")
+		if err := json.NewEncoder(w).Encode(cached); err != nil {
+			log.Printf("Error encoding cached response: %v", err)
+			http.Error(w, "Internal server error", http.StatusInternalServerError)
+		}
+		return
+	}
+
+	metrics.CacheMissesTotal.WithLabelValues("reviews", username).Inc()
+
+	log.Printf("Fetching reviews for user: %s", username)
+	books, err := s.client.GetUserReviewsByUsername(username)
+	if err != nil {
+		log.Printf("Error fetching reviews for user %s: %v", username, err)
+		http.Error(w, "Failed to fetch reviews", http.StatusInternalServerError)
+		return
+	}
+
+	s.cache.Set(cacheKey, books)
+
+	w.Header().Set("Content-Type", "application/json")
+	if err := json.NewEncoder(w).Encode(books); err != nil {
+		log.Printf("Error encoding response: %v", err)
+		http.Error(w, "Internal server error", http.StatusInternalServerError)
+	}
+}
