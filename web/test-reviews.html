@@ -130,9 +130,9 @@
         <h2>Method 1: Iframe Embedding</h2>
         <p>The simplest way to embed reviews. Just add an iframe to your HTML:</p>
         
-        <div class="code-block">
+        <div class="code-block" id="iframe-code">
 &lt;iframe 
-    src="http://localhost:8080/static/reviews-embed.html?username=gouthamve" 
+    src="${apiUrl}/static/reviews-embed.html?username=gouthamve" 
     width="100%" 
     height="600" 
     frameborder="0"&gt;
@@ -140,7 +140,7 @@
         </div>
         
         <div class="iframe-wrapper">
-            <iframe id="reviews-iframe" src="http://localhost:8080/static/reviews-embed.html?username=gouthamve"></iframe>
+            <iframe id="reviews-iframe" src="/static/reviews-embed.html?username=gouthamve"></iframe>
         </div>
     </div>
 
@@ -148,14 +148,14 @@
         <h2>Method 2: JavaScript Widget</h2>
         <p>For more control and customization, use the JavaScript widget:</p>
         
-        <div class="code-block">
+        <div class="code-block" id="widget-code">
 &lt;div data-hardcover-review-widget 
      data-username="gouthamve"
-     data-api-url="http://localhost:8080"
+     data-api-url="${apiUrl}"
      data-max-width="800px"
      data-show-powered-by="true"&gt;
 &lt;/div&gt;
-&lt;script src="http://localhost:8080/static/review-widget.js"&gt;&lt;/script&gt;
+&lt;script src="${apiUrl}/static/review-widget.js"&gt;&lt;/script&gt;
         </div>
         
         <div class="widget-wrapper">
@@ -167,10 +167,10 @@
         <h2>Advanced Widget Configuration</h2>
         <p>The JavaScript widget supports additional configuration options:</p>
         
-        <div class="code-block">
+        <div class="code-block" id="advanced-code">
 // Initialize programmatically with custom options
 new HardcoverReviewWidget(element, {
-    apiUrl: 'http://localhost:8080',
+    apiUrl: '${apiUrl}',
     username: 'gouthamve',
     maxWidth: '600px',
     maxReviewLength: 200,  // Truncate reviews after 200 characters
@@ -184,8 +184,35 @@ new HardcoverReviewWidget(element, {
         </div>
     </div>
 
-    <script src="http://localhost:8080/static/review-widget.js"></script>
+    <script id="widget-script"></script>
     <script>
+        // Dynamically determine the API URL based on current location
+        const currentOrigin = window.location.origin;
+        const apiUrl = currentOrigin;
+        
+        // Update all code examples with dynamic API URL
+        document.addEventListener('DOMContentLoaded', function() {
+            // Update code blocks
+            document.getElementById('iframe-code').textContent = document.getElementById('iframe-code').textContent.replace('${apiUrl}', apiUrl);
+            document.getElementById('widget-code').textContent = document.getElementById('widget-code').textContent.replace(/\${apiUrl}/g, apiUrl);
+            document.getElementById('advanced-code').textContent = document.getElementById('advanced-code').textContent.replace('${apiUrl}', apiUrl);
+            
+            // Update iframe src with correct origin
+            const iframe = document.getElementById('reviews-iframe');
+            if (iframe) {
+                iframe.src = `${apiUrl}/static/reviews-embed.html?username=gouthamve`;
+            }
+            
+            // Load widget script dynamically
+            const scriptElement = document.createElement('script');
+            scriptElement.src = `${apiUrl}/static/review-widget.js`;
+            scriptElement.onload = function() {
+                // Initialize widgets after script loads
+                updateWidgets();
+            };
+            document.getElementById('widget-script').replaceWith(scriptElement);
+        });
+        
         function updateWidgets() {
             const username = document.getElementById('username').value;
             
@@ -196,7 +223,7 @@ new HardcoverReviewWidget(element, {
             
             // Update iframe
             const iframe = document.getElementById('reviews-iframe');
-            iframe.src = `http://localhost:8080/static/reviews-embed.html?username=${username}`;
+            iframe.src = `${apiUrl}/static/reviews-embed.html?username=${username}`;
             
             // Update regular widget
             const widgetContainer = document.getElementById('review-widget-container');
@@ -205,7 +232,7 @@ new HardcoverReviewWidget(element, {
             widgetContainer.appendChild(widgetDiv);
             
             new HardcoverReviewWidget(widgetDiv, {
-                apiUrl: 'http://localhost:8080',
+                apiUrl: apiUrl,
                 username: username,
                 showPoweredBy: true
             });
@@ -217,18 +244,13 @@ new HardcoverReviewWidget(element, {
             customContainer.appendChild(customDiv);
             
             new HardcoverReviewWidget(customDiv, {
-                apiUrl: 'http://localhost:8080',
+                apiUrl: apiUrl,
                 username: username,
                 maxWidth: '600px',
                 maxReviewLength: 200,
                 showPoweredBy: false
             });
         }
-        
-        // Initialize widgets on page load
-        window.addEventListener('DOMContentLoaded', function() {
-            updateWidgets();
-        });
     </script>
 </body>
 </html>
