@@ -448,7 +448,16 @@ func TestClientParsesReviewsAPIResponse(t *testing.T) {
           "image": {
             "url": "https://assets.hardcover.app/edition/31601422/2fd7c35a3c3ea037dea2e38a1b48964f1d6b7218.jpeg"
           },
-          "slug": "dungeon-crawler-carl"
+          "slug": "dungeon-crawler-carl",
+          "contributions": [
+            {
+              "author": {
+                "name": "Matt Dinniman",
+                "links": [],
+                "slug": "matt-dinniman"
+              }
+            }
+          ]
         },
         "review_object": [],
         "review_slate": {
@@ -485,7 +494,16 @@ func TestClientParsesReviewsAPIResponse(t *testing.T) {
           "image": {
             "url": "https://assets.hardcover.app/external_data/60702703/983bb1e60d94ccec2e4f80c90715b93ffaccdc04.jpeg"
           },
-          "slug": "slow-productivity"
+          "slug": "slow-productivity",
+          "contributions": [
+            {
+              "author": {
+                "name": "Cal Newport",
+                "links": [],
+                "slug": "cal-newport"
+              }
+            }
+          ]
         },
         "review_object": [],
         "review_slate": {
@@ -510,7 +528,7 @@ func TestClientParsesReviewsAPIResponse(t *testing.T) {
       },
       {
         "review_length": 560,
-        "review_raw": "After reading a few other magic school books this year (The Will of the Many, The Scholomance), I wasn't sure this one would live up to the hype of being the #1 trending book on Hardcover. Turns out it did.Forth Wing takes place in a cutthroat school for dragon riders. Students learn the skills needed to defend their homeland from invading forces and protect society.At times it reminded me of The Hunger Games, LOTR and others in the dark-academia genre while still managing to be original enough to keep me wondering. Sign me up for the next in the series.",
+        "review_raw": "After reading a few other magic school books this year (The Will of the Many, The Scholomance), I wasn't sure this one would live up to the hype of being the #1 trending book on Hardcover. Turns out it did.Fourth Wing takes place in a cutthroat school for dragon riders. Students learn the skills needed to defend their homeland from invading forces and protect society.At times it reminded me of The Hunger Games, LOTR and others in the dark-academia genre while still managing to be original enough to keep me wondering. Sign me up for the next in the series.",
         "reviewed_at": "2023-10-18T17:29:19.393223",
         "has_review": true,
         "review_has_spoilers": false,
@@ -522,7 +540,16 @@ func TestClientParsesReviewsAPIResponse(t *testing.T) {
           "image": {
             "url": "https://assets.hardcover.app/editions/30707731/3559167047761380.jpeg"
           },
-          "slug": "fourth-wing"
+          "slug": "fourth-wing",
+          "contributions": [
+            {
+              "author": {
+                "name": "Rebecca Yarros",
+                "links": [],
+                "slug": "rebecca-yarros"
+              }
+            }
+          ]
         },
         "review_object": [],
         "review_slate": {
@@ -570,6 +597,8 @@ func TestClientParsesReviewsAPIResponse(t *testing.T) {
 		BookID            int
 		Title             string
 		Slug              string
+		AuthorName        string
+		AuthorSlug        string
 		Rating            float64
 		ReviewLength      int
 		ReviewRaw         string
@@ -582,6 +611,8 @@ func TestClientParsesReviewsAPIResponse(t *testing.T) {
 			BookID:            446681,
 			Title:             "Dungeon Crawler Carl",
 			Slug:              "dungeon-crawler-carl",
+			AuthorName:        "Matt Dinniman",
+			AuthorSlug:        "matt-dinniman",
 			Rating:            5,
 			ReviewLength:      45,
 			ReviewRaw:         "Neeeeeeeew achievement! Read my first LitRPG!",
@@ -594,6 +625,8 @@ func TestClientParsesReviewsAPIResponse(t *testing.T) {
 			BookID:            898371,
 			Title:             "Slow Productivity: The Lost Art of Accomplishment Without Burnout",
 			Slug:              "slow-productivity",
+			AuthorName:        "Cal Newport",
+			AuthorSlug:        "cal-newport",
 			Rating:            4.5,
 			ReviewLength:      436,
 			ReviewRaw:         "Sometimes a book comes along with exactly what you need when you need it. This one helped me reflect to on my own mindset about productivity and make adjustments to be happier and healthier.The main premise of the book is stated early (on page 8):A philosophy for organizing knowledge work efforts in a sustainable and meaningful manner based on the following three principles.Do fewer things.Work at a natural pace.Obsess over quality.",
@@ -606,9 +639,11 @@ func TestClientParsesReviewsAPIResponse(t *testing.T) {
 			BookID:            714600,
 			Title:             "Fourth Wing",
 			Slug:              "fourth-wing",
+			AuthorName:        "Rebecca Yarros",
+			AuthorSlug:        "rebecca-yarros",
 			Rating:            5,
 			ReviewLength:      560,
-			ReviewRaw:         "After reading a few other magic school books this year (The Will of the Many, The Scholomance), I wasn't sure this one would live up to the hype of being the #1 trending book on Hardcover. Turns out it did.Forth Wing takes place in a cutthroat school for dragon riders. Students learn the skills needed to defend their homeland from invading forces and protect society.At times it reminded me of The Hunger Games, LOTR and others in the dark-academia genre while still managing to be original enough to keep me wondering. Sign me up for the next in the series.",
+			ReviewRaw:         "After reading a few other magic school books this year (The Will of the Many, The Scholomance), I wasn't sure this one would live up to the hype of being the #1 trending book on Hardcover. Turns out it did.Fourth Wing takes place in a cutthroat school for dragon riders. Students learn the skills needed to defend their homeland from invading forces and protect society.At times it reminded me of The Hunger Games, LOTR and others in the dark-academia genre while still managing to be original enough to keep me wondering. Sign me up for the next in the series.",
 			ReviewedAt:        "2023-10-18T17:29:19.393223",
 			HasReview:         true,
 			ReviewHasSpoilers: false,
@@ -706,6 +741,24 @@ func TestClientParsesReviewsAPIResponse(t *testing.T) {
 			t.Errorf("review %d: missing image URL", i)
 		}
 
+		// Verify author details
+		if book.Contributions == nil || len(book.Contributions) == 0 {
+			t.Errorf("review %d: missing contributions", i)
+		} else {
+			// Verify the first author (assuming single author for these test books)
+			author := book.Contributions[0].Author
+			if author.Name != expected.AuthorName {
+				t.Errorf("review %d: expected author name %q, got %q", i, expected.AuthorName, author.Name)
+			}
+			if author.Slug != expected.AuthorSlug {
+				t.Errorf("review %d: expected author slug %q, got %q", i, expected.AuthorSlug, author.Slug)
+			}
+			// Verify links field exists (even if empty)
+			if author.Links == nil {
+				t.Errorf("review %d: expected author links to be non-nil", i)
+			}
+		}
+
 		// Verify review_slate exists (basic check)
 		if review.ReviewSlate == nil {
 			t.Errorf("review %d: expected review_slate, got nil", i)
@@ -742,7 +795,16 @@ func TestClientHandlesReviewsWithSpoilers(t *testing.T) {
 						"image": {
 							"url": "https://example.com/cover.jpg"
 						},
-						"slug": "test-book"
+						"slug": "test-book",
+						"contributions": [
+							{
+								"author": {
+									"name": "Test Author",
+									"links": [],
+									"slug": "test-author"
+								}
+							}
+						]
 					},
 					"review_object": [],
 					"review_slate": {},
