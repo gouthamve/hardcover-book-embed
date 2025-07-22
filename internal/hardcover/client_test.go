@@ -606,6 +606,7 @@ func TestClientParsesReviewsAPIResponse(t *testing.T) {
 		HasReview         bool
 		ReviewHasSpoilers bool
 		HasReviewHTML     bool
+		ReviewSlate       *ReviewSlate
 	}{
 		{
 			BookID:            446681,
@@ -620,6 +621,24 @@ func TestClientParsesReviewsAPIResponse(t *testing.T) {
 			HasReview:         true,
 			ReviewHasSpoilers: false,
 			HasReviewHTML:     false,
+			ReviewSlate: &ReviewSlate{
+				Document: SlateDocument{
+					Object: "document",
+					Children: []SlateBlock{
+						{
+							Data:   map[string]interface{}{},
+							Type:   "paragraph",
+							Object: "block",
+							Children: []SlateText{
+								{
+									Text:   "Neeeeeeeew achievement! Read my first LitRPG!",
+									Object: "text",
+								},
+							},
+						},
+					},
+				},
+			},
 		},
 		{
 			BookID:            898371,
@@ -634,6 +653,24 @@ func TestClientParsesReviewsAPIResponse(t *testing.T) {
 			HasReview:         true,
 			ReviewHasSpoilers: false,
 			HasReviewHTML:     false,
+			ReviewSlate: &ReviewSlate{
+				Document: SlateDocument{
+					Object: "document",
+					Children: []SlateBlock{
+						{
+							Data:   map[string]interface{}{},
+							Type:   "paragraph",
+							Object: "block",
+							Children: []SlateText{
+								{
+									Text:   "Sometimes a book comes along with exactly what you need when you need it. This one helped me reflect to on my own mindset about productivity and make adjustments to be happier and healthier.",
+									Object: "text",
+								},
+							},
+						},
+					},
+				},
+			},
 		},
 		{
 			BookID:            714600,
@@ -648,6 +685,12 @@ func TestClientParsesReviewsAPIResponse(t *testing.T) {
 			HasReview:         true,
 			ReviewHasSpoilers: false,
 			HasReviewHTML:     false,
+			ReviewSlate: &ReviewSlate{
+				Document: SlateDocument{
+					Object:   "document",
+					Children: []SlateBlock{}, // Empty children as per test data
+				},
+			},
 		},
 	}
 
@@ -759,9 +802,46 @@ func TestClientParsesReviewsAPIResponse(t *testing.T) {
 			}
 		}
 
-		// Verify review_slate exists (basic check)
-		if review.ReviewSlate == nil {
-			t.Errorf("review %d: expected review_slate, got nil", i)
+		// Verify review_slate
+		if expected.ReviewSlate == nil {
+			if review.ReviewSlate != nil {
+				t.Errorf("review %d: expected nil review_slate, got %+v", i, review.ReviewSlate)
+			}
+		} else {
+			if review.ReviewSlate == nil {
+				t.Errorf("review %d: expected review_slate, got nil", i)
+			} else {
+				// Verify document object type
+				if review.ReviewSlate.Document.Object != expected.ReviewSlate.Document.Object {
+					t.Errorf("review %d: expected document object %q, got %q", i, expected.ReviewSlate.Document.Object, review.ReviewSlate.Document.Object)
+				}
+
+				// Verify number of children
+				if len(review.ReviewSlate.Document.Children) != len(expected.ReviewSlate.Document.Children) {
+					t.Errorf("review %d: expected %d children, got %d", i, len(expected.ReviewSlate.Document.Children), len(review.ReviewSlate.Document.Children))
+				}
+
+				// For non-empty slate, verify the content
+				if len(expected.ReviewSlate.Document.Children) > 0 && len(review.ReviewSlate.Document.Children) > 0 {
+					firstBlock := review.ReviewSlate.Document.Children[0]
+					expectedBlock := expected.ReviewSlate.Document.Children[0]
+
+					if firstBlock.Type != expectedBlock.Type {
+						t.Errorf("review %d: expected block type %q, got %q", i, expectedBlock.Type, firstBlock.Type)
+					}
+
+					if firstBlock.Object != expectedBlock.Object {
+						t.Errorf("review %d: expected block object %q, got %q", i, expectedBlock.Object, firstBlock.Object)
+					}
+
+					// Verify text content
+					if len(firstBlock.Children) > 0 && len(expectedBlock.Children) > 0 {
+						if firstBlock.Children[0].Text != expectedBlock.Children[0].Text {
+							t.Errorf("review %d: expected text %q, got %q", i, expectedBlock.Children[0].Text, firstBlock.Children[0].Text)
+						}
+					}
+				}
+			}
 		}
 
 		// Verify review_object exists

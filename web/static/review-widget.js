@@ -13,6 +13,12 @@
             .replace(/'/g, "&#039;");
     }
     
+    // Escape HTML and convert newlines to <br> tags
+    function escapeHtmlWithBreaks(unsafe) {
+        if (unsafe === null || unsafe === undefined) return '';
+        return escapeHtml(unsafe).replace(/\n/g, '<br>');
+    }
+    
     // Default configuration
     const defaultConfig = {
         apiUrl: 'http://localhost:8080',
@@ -430,6 +436,25 @@
             this.element.innerHTML = html;
         }
 
+        extractTextFromSlate(reviewSlate) {
+            if (!reviewSlate?.document?.children) return null;
+            
+            const textParts = [];
+            reviewSlate.document.children.forEach(block => {
+                if (block.children && Array.isArray(block.children)) {
+                    const blockText = block.children
+                        .filter(child => child.text)
+                        .map(child => child.text)
+                        .join('');
+                    if (blockText) {
+                        textParts.push(blockText);
+                    }
+                }
+            });
+            
+            return textParts.length > 0 ? textParts.join('\n') : null;
+        }
+
         renderAuthors(contributions) {
             if (!contributions || contributions.length === 0) return '';
             
@@ -448,7 +473,8 @@
                 : '';
             
             const reviewUrl = `https://hardcover.app/books/${escapeHtml(review.book.slug)}/reviews/@${escapeHtml(this.config.username)}`;
-            const reviewText = review.review_raw || '';
+            const slateText = this.extractTextFromSlate(review.review_slate);
+            const reviewText = slateText || review.review_raw || '';
             const truncatedText = this.truncateText(reviewText, this.config.maxReviewLength);
             const needsReadMore = reviewText.length > this.config.maxReviewLength;
 
@@ -479,7 +505,7 @@
                         </div>
                         ${review.review_has_spoilers ? '<span class="hrw-spoiler-warning">Contains spoilers</span>' : ''}
                         ${reviewText ? `
-                            <p class="hrw-review-text">${escapeHtml(truncatedText)}</p>
+                            <p class="hrw-review-text">${escapeHtmlWithBreaks(truncatedText)}</p>
                             ${needsReadMore ? `<a href="${reviewUrl}" target="_blank" rel="noopener" class="hrw-read-more">Read full review →</a>` : ''}
                         ` : ''}
                     </div>
