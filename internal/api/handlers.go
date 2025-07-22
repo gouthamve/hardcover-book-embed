@@ -45,6 +45,11 @@ func (s *Server) enableCORS(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Access-Control-Allow-Methods", "GET, OPTIONS")
 	w.Header().Set("Access-Control-Allow-Headers", "Content-Type")
 	w.Header().Set("Access-Control-Max-Age", "86400")
+	
+	// Security headers for API responses
+	w.Header().Set("X-Content-Type-Options", "nosniff")
+	w.Header().Set("X-Frame-Options", "DENY")
+	w.Header().Set("Content-Security-Policy", "default-src 'none'; frame-ancestors 'none';")
 }
 
 func (s *Server) HandleUserCurrentlyReading(w http.ResponseWriter, r *http.Request) {

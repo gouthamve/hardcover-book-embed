@@ -151,9 +151,28 @@ func (h *StaticHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		// Let ServeFile detect the content type
 	}
 
+	// Security headers
+	// CSP for HTML files - restrictive policy to prevent XSS
+	if filepath.Ext(urlPath) == ".html" {
+		// Allow inline scripts with nonce for our embed pages
+		// These pages need inline scripts to parse URL parameters
+		if urlPath == "embed.html" || urlPath == "reviews-embed.html" {
+			// For embed pages, allow unsafe-inline for the parameter parsing script
+			// This is acceptable since these pages don't display user content directly
+			w.Header().Set("Content-Security-Policy", "default-src 'self'; img-src 'self' https://hardcover.app https://*.hardcover.app data:; style-src 'self' 'unsafe-inline'; script-src 'self' 'unsafe-inline'; connect-src 'self' https://hardcover.app https://*.hardcover.app; frame-ancestors *;")
+		} else {
+			// For other HTML pages, use strict CSP
+			w.Header().Set("Content-Security-Policy", "default-src 'self'; img-src 'self' https://hardcover.app https://*.hardcover.app data:; style-src 'self' 'unsafe-inline'; script-src 'self'; connect-src 'self' https://hardcover.app https://*.hardcover.app; frame-ancestors 'none';")
+		}
+		w.Header().Set("X-Content-Type-Options", "nosniff")
+		w.Header().Set("X-Frame-Options", "SAMEORIGIN") // Allow framing for embed pages
+	}
+	
 	// CORS for JavaScript files
 	if filepath.Ext(urlPath) == ".js" {
 		w.Header().Set("Access-Control-Allow-Origin", "*")
+		// CSP for embedded widget scripts
+		w.Header().Set("Content-Security-Policy", "default-src 'none'; connect-src *;")
 	}
 
 	// Check conditional requests

@@ -2,6 +2,17 @@
     // Hardcover Review Widget
     const WIDGET_VERSION = '1.0.0';
     
+    // HTML escape function to prevent XSS
+    function escapeHtml(unsafe) {
+        if (unsafe === null || unsafe === undefined) return '';
+        return String(unsafe)
+            .replace(/&/g, "&amp;")
+            .replace(/</g, "&lt;")
+            .replace(/>/g, "&gt;")
+            .replace(/"/g, "&quot;")
+            .replace(/'/g, "&#039;");
+    }
+    
     // Default configuration
     const defaultConfig = {
         apiUrl: 'http://localhost:8080',
@@ -389,7 +400,7 @@
             if (this.config.showPoweredBy) {
                 html += `
                     <div class="hrw-powered-by">
-                        <a href="https://hardcover.app/@${this.config.username}" target="_blank" rel="noopener">Book reviews on Hardcover</a>
+                        <a href="https://hardcover.app/@${escapeHtml(this.config.username)}" target="_blank" rel="noopener">Book reviews on Hardcover</a>
                     </div>
                 `;
             }
@@ -399,10 +410,10 @@
 
         renderReview(review) {
             const cover = review.book.image && review.book.image.url
-                ? `<img src="${review.book.image.url}" alt="${review.book.title} cover" loading="lazy">`
+                ? `<img src="${escapeHtml(review.book.image.url)}" alt="${escapeHtml(review.book.title)} cover" loading="lazy">`
                 : '';
             
-            const reviewUrl = `https://hardcover.app/books/${review.book.slug}/reviews/@${this.config.username}`;
+            const reviewUrl = `https://hardcover.app/books/${escapeHtml(review.book.slug)}/reviews/@${escapeHtml(this.config.username)}`;
             const reviewText = review.review_raw || '';
             const truncatedText = this.truncateText(reviewText, this.config.maxReviewLength);
             const needsReadMore = reviewText.length > this.config.maxReviewLength;
@@ -418,7 +429,7 @@
                                 ${cover}
                             </div>
                             <div class="hrw-book-info">
-                                <a href="${reviewUrl}" target="_blank" rel="noopener" class="hrw-book-title">${review.book.title}</a>
+                                <a href="${reviewUrl}" target="_blank" rel="noopener" class="hrw-book-title">${escapeHtml(review.book.title)}</a>
                                 <div class="hrw-review-meta">
                                     ${review.rating ? `
                                         <div class="hrw-rating">
@@ -433,7 +444,7 @@
                         </div>
                         ${review.review_has_spoilers ? '<span class="hrw-spoiler-warning">Contains spoilers</span>' : ''}
                         ${reviewText ? `
-                            <p class="hrw-review-text">${truncatedText}</p>
+                            <p class="hrw-review-text">${escapeHtml(truncatedText)}</p>
                             ${needsReadMore ? `<a href="${reviewUrl}" target="_blank" rel="noopener" class="hrw-read-more">Read full review →</a>` : ''}
                         ` : ''}
                     </div>

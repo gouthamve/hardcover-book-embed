@@ -3,6 +3,7 @@ package hardcover
 import (
 	"bytes"
 	"context"
+	"strings"
 	"encoding/json"
 	"fmt"
 	"net/http"
@@ -144,6 +145,17 @@ func (c *client) makeHardcoverRequest(operation, username, query string) (*UserB
 	}, nil
 }
 
+// escapeGraphQLString escapes special characters in a string for safe inclusion in GraphQL queries
+func escapeGraphQLString(s string) string {
+	// Escape backslashes first, then quotes, newlines, and other control characters
+	s = strings.ReplaceAll(s, "\\", "\\\\")
+	s = strings.ReplaceAll(s, "\"", "\\\"")
+	s = strings.ReplaceAll(s, "\n", "\\n")
+	s = strings.ReplaceAll(s, "\r", "\\r")
+	s = strings.ReplaceAll(s, "\t", "\\t")
+	return s
+}
+
 func (c *client) GetUserCurrentlyReadingBooksByUsername(username string) (*UserBooksResponse, error) {
 	query := fmt.Sprintf(`{
 		user_books(
@@ -162,7 +174,7 @@ func (c *client) GetUserCurrentlyReadingBooksByUsername(username string) (*UserB
 				slug
 			}
 		}
-	}`, username)
+	}`, escapeGraphQLString(username))
 
 	return c.makeHardcoverRequest("currently-reading", username, query)
 }
@@ -186,7 +198,7 @@ func (c *client) GetUserLastReadBooksByUsername(username string) (*UserBooksResp
 				slug
 			}
 		}
-	}`, username)
+	}`, escapeGraphQLString(username))
 
 	return c.makeHardcoverRequest("last-read", username, query)
 }
@@ -217,7 +229,7 @@ func (c *client) GetUserReviewsByUsername(username string) (*UserBooksResponse, 
 			review_slate
 			url
 		}
-	}`, username)
+	}`, escapeGraphQLString(username))
 
 	return c.makeHardcoverRequest("reviews", username, query)
 }

@@ -2,6 +2,17 @@
     // Hardcover Book Widget
     const WIDGET_VERSION = '1.0.0';
     
+    // HTML escape function to prevent XSS
+    function escapeHtml(unsafe) {
+        if (unsafe === null || unsafe === undefined) return '';
+        return String(unsafe)
+            .replace(/&/g, "&amp;")
+            .replace(/</g, "&lt;")
+            .replace(/>/g, "&gt;")
+            .replace(/"/g, "&quot;")
+            .replace(/'/g, "&#039;");
+    }
+    
     // Default configuration
     const defaultConfig = {
         apiUrl: 'http://localhost:8080',
@@ -254,17 +265,17 @@
 
         renderBook(book) {
             const cover = book.book.image && book.book.image.url
-                ? `<img src="${book.book.image.url}" alt="${book.book.title} cover" loading="lazy">`
+                ? `<img src="${escapeHtml(book.book.image.url)}" alt="${escapeHtml(book.book.title)} cover" loading="lazy">`
                 : '';
             
-            const bookUrl = `https://hardcover.app/books/${book.book.slug}`;
+            const bookUrl = `https://hardcover.app/books/${escapeHtml(book.book.slug)}`;
 
             return `
                 <li class="hw-book-item">
                     <a href="${bookUrl}" target="_blank" rel="noopener" class="hw-book-link">
                         <div class="hw-book-cover">
                             ${cover}
-                            <div class="hw-book-title-overlay">${book.book.title}</div>
+                            <div class="hw-book-title-overlay">${escapeHtml(book.book.title)}</div>
                         </div>
                     </a>
                 </li>

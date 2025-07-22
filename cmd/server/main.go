@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"log"
 	"net/http"
 	"os"
@@ -40,7 +41,10 @@ func main() {
 
 	allowedOrigins := os.Getenv("ALLOWED_ORIGINS")
 	if allowedOrigins == "" {
-		allowedOrigins = "*"
+		// Default to restrictive - must be explicitly configured for production
+		fmt.Println("WARNING: ALLOWED_ORIGINS not set. CORS is disabled by default for security.")
+		fmt.Println("To enable CORS, set ALLOWED_ORIGINS environment variable (e.g., 'https://example.com,https://app.example.com' or '*' for all origins)")
+		allowedOrigins = ""
 	}
 
 	client := hardcover.NewClient(apiToken)
