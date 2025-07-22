@@ -167,7 +167,7 @@ func (h *StaticHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("X-Content-Type-Options", "nosniff")
 		w.Header().Set("X-Frame-Options", "SAMEORIGIN") // Allow framing for embed pages
 	}
-	
+
 	// CORS for JavaScript files
 	if filepath.Ext(urlPath) == ".js" {
 		w.Header().Set("Access-Control-Allow-Origin", "*")

@@ -3,10 +3,10 @@ package hardcover
 import (
 	"bytes"
 	"context"
-	"strings"
 	"encoding/json"
 	"fmt"
 	"net/http"
+	"strings"
 	"time"
 
 	"github.com/gouthamve/hardcover-book-embed/internal/metrics"
