@@ -45,11 +45,22 @@ type Image struct {
 	URL string `json:"url"`
 }
 
+type Author struct {
+	Name  string      `json:"name"`
+	Slug  string      `json:"slug"`
+	Links interface{} `json:"links,omitempty"`
+}
+
+type Contribution struct {
+	Author Author `json:"author"`
+}
+
 type Book struct {
-	ID    int    `json:"id"`
-	Title string `json:"title"`
-	Slug  string `json:"slug"`
-	Image *Image `json:"image,omitempty"`
+	ID            int            `json:"id"`
+	Title         string         `json:"title"`
+	Slug          string         `json:"slug"`
+	Image         *Image         `json:"image,omitempty"`
+	Contributions []Contribution `json:"contributions,omitempty"`
 }
 
 type Contributor struct {

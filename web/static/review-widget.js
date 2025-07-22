@@ -120,6 +120,28 @@
             border-bottom: none !important;
         }
 
+        .hrw-authors {
+            font-size: 0.8rem;
+            color: #6b7280;
+            margin: 0.125rem 0 0.375rem 0;
+        }
+
+        .hrw-author-link {
+            color: #4b5563;
+            text-decoration: none !important;
+            box-shadow: none !important;
+            border-bottom: none !important;
+        }
+
+        .hrw-author-link:hover {
+            color: #2563eb;
+            text-decoration: underline !important;
+            text-decoration-thickness: 1px !important;
+            text-underline-offset: 2px !important;
+            box-shadow: none !important;
+            border-bottom: none !important;
+        }
+
         .hrw-review-meta {
             display: flex;
             align-items: center;
@@ -256,7 +278,7 @@
 
             .hrw-review-meta {
                 flex-wrap: wrap;
-                font-size: 0.8125rem;
+                font-size: 0.8rem;
                 margin-top: 0.25rem;
             }
 
@@ -408,6 +430,18 @@
             this.element.innerHTML = html;
         }
 
+        renderAuthors(contributions) {
+            if (!contributions || contributions.length === 0) return '';
+            
+            const authors = contributions.map((contrib, index) => {
+                const author = contrib.author;
+                const authorUrl = `https://hardcover.app/authors/${escapeHtml(author.slug)}`;
+                return `<a href="${authorUrl}" target="_blank" rel="noopener" class="hrw-author-link">${escapeHtml(author.name)}</a>`;
+            }).join(', ');
+            
+            return `<div class="hrw-authors">by ${authors}</div>`;
+        }
+
         renderReview(review) {
             const cover = review.book.image && review.book.image.url
                 ? `<img src="${escapeHtml(review.book.image.url)}" alt="${escapeHtml(review.book.title)} cover" loading="lazy">`
@@ -430,6 +464,7 @@
                             </div>
                             <div class="hrw-book-info">
                                 <a href="${reviewUrl}" target="_blank" rel="noopener" class="hrw-book-title">${escapeHtml(review.book.title)}</a>
+                                ${this.renderAuthors(review.book.contributions)}
                                 <div class="hrw-review-meta">
                                     ${review.rating ? `
                                         <div class="hrw-rating">

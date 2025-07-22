@@ -224,6 +224,13 @@ func (c *client) GetUserReviewsByUsername(username string) (*UserBooksResponse, 
 					url
 				}
 				slug
+				contributions {
+					author {
+						name
+						links
+						slug
+					}
+				}
 			}
 			review_object
 			review_slate
