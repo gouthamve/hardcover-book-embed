@@ -742,7 +742,7 @@ func TestClientParsesReviewsAPIResponse(t *testing.T) {
 		}
 
 		// Verify author details
-		if book.Contributions == nil || len(book.Contributions) == 0 {
+		if len(book.Contributions) == 0 {
 			t.Errorf("review %d: missing contributions", i)
 		} else {
 			// Verify the first author (assuming single author for these test books)
