@@ -67,20 +67,41 @@ type Contributor struct {
 	Name string `json:"name"`
 }
 
+type SlateText struct {
+	Text   string `json:"text"`
+	Object string `json:"object"`
+}
+
+type SlateBlock struct {
+	Data     map[string]interface{} `json:"data"`
+	Type     string                 `json:"type"`
+	Object   string                 `json:"object"`
+	Children []SlateText            `json:"children"`
+}
+
+type SlateDocument struct {
+	Object   string       `json:"object"`
+	Children []SlateBlock `json:"children"`
+}
+
+type ReviewSlate struct {
+	Document SlateDocument `json:"document"`
+}
+
 type UserBook struct {
-	Rating            *float64    `json:"rating,omitempty"`
-	Book              Book        `json:"book"`
-	UpdatedAt         time.Time   `json:"updated_at"`
-	LastReadDate      *Date       `json:"last_read_date,omitempty"`
-	ReviewLength      *int        `json:"review_length,omitempty"`
-	ReviewRaw         *string     `json:"review_raw,omitempty"`
-	ReviewedAt        *Date       `json:"reviewed_at,omitempty"`
-	HasReview         bool        `json:"has_review"`
-	ReviewHasSpoilers bool        `json:"review_has_spoilers"`
-	ReviewHTML        *string     `json:"review_html,omitempty"`
-	ReviewObject      interface{} `json:"review_object,omitempty"`
-	ReviewSlate       interface{} `json:"review_slate,omitempty"`
-	URL               string      `json:"url"`
+	Rating            *float64     `json:"rating,omitempty"`
+	Book              Book         `json:"book"`
+	UpdatedAt         time.Time    `json:"updated_at"`
+	LastReadDate      *Date        `json:"last_read_date,omitempty"`
+	ReviewLength      *int         `json:"review_length,omitempty"`
+	ReviewRaw         *string      `json:"review_raw,omitempty"`
+	ReviewedAt        *Date        `json:"reviewed_at,omitempty"`
+	HasReview         bool         `json:"has_review"`
+	ReviewHasSpoilers bool         `json:"review_has_spoilers"`
+	ReviewHTML        *string      `json:"review_html,omitempty"`
+	ReviewObject      interface{}  `json:"review_object,omitempty"`
+	ReviewSlate       *ReviewSlate `json:"review_slate,omitempty"`
+	URL               string       `json:"url"`
 }
 
 type UserBooksAPIResponse struct {
