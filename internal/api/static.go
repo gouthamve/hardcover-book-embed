@@ -159,7 +159,8 @@ func (h *StaticHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		if urlPath == "embed.html" || urlPath == "reviews-embed.html" {
 			// For embed pages, allow unsafe-inline for the parameter parsing script
 			// This is acceptable since these pages don't display user content directly
-			w.Header().Set("Content-Security-Policy", "default-src 'self'; img-src 'self' https://hardcover.app https://*.hardcover.app data:; style-src 'self' 'unsafe-inline'; script-src 'self' 'unsafe-inline'; connect-src 'self' https://hardcover.app https://*.hardcover.app; frame-ancestors *;")
+			// Also allow Grafana Faro collector for analytics and scripts from unpkg.com
+			w.Header().Set("Content-Security-Policy", "default-src 'self'; img-src 'self' https://hardcover.app https://*.hardcover.app data:; style-src 'self' 'unsafe-inline'; script-src 'self' 'unsafe-inline' https://unpkg.com; connect-src 'self' https://hardcover.app https://*.hardcover.app https://faro-collector-prod-us-central-0.grafana.net; frame-ancestors *;")
 		} else {
 			// For other HTML pages, use strict CSP
 			w.Header().Set("Content-Security-Policy", "default-src 'self'; img-src 'self' https://hardcover.app https://*.hardcover.app data:; style-src 'self' 'unsafe-inline'; script-src 'self'; connect-src 'self' https://hardcover.app https://*.hardcover.app; frame-ancestors 'none';")
