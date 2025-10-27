@@ -108,7 +108,7 @@ jobs:
       continue-on-error: true
     
     - name: Upload Security Scan Results
-      uses: actions/upload-artifact@v4
+      uses: actions/upload-artifact@v5
       if: failure()
       with:
         name: security-results
@@ -146,7 +146,7 @@ jobs:
         go tool cover -func=coverage.out
     
     - name: Upload coverage artifacts
-      uses: actions/upload-artifact@v4
+      uses: actions/upload-artifact@v5
       with:
         name: coverage-report
         path: |
